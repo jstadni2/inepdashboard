@@ -1,0 +1,26 @@
+Package: inepdashboard
+Title: Illinois Nutitrion Education Program (INEP) Community Programming Dashboard
+Version: 0.0.0.9000
+Authors@R: person('Jamie', 'Stadnik', email = 'jstadni2@illinois.edu', role = c('cre', 'aut'))
+Description: An interactive dashboard that displays
+  INEP programming, community resources, and community characteristics.
+License: MIT + file LICENSE
+Imports: 
+    attempt,
+    config (>= 0.3.1),
+    DT,
+    glue,
+    golem (>= 0.3.1),
+    htmltools,
+    processx,
+    shiny (>= 1.6.0)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Suggests: 
+    spelling,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Language: en-US
+URL: https://github.com/jstadni2/inepdashboard
+BugReports: https://github.com/jstadni2/inepdashboard/issues
