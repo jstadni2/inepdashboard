@@ -20,6 +20,45 @@ s2_available <- !inherits(try(sf::sf_use_s2(TRUE), silent = TRUE), "try-error")
 
 il_tracts_sf <- sf::st_read("./cb_2019_17_tract_500k")
 
+## SNAP Eligible Individuals/% Tracts Layer
+
+s1701_poverty_tracts <-
+  s1701_poverty_tracts %>% dplyr::rename(
+    AFFGEOID = "id",
+    total_population = "Estimate!!Total!!Population for whom poverty status is determined",
+    individuals_income_below_185_percent_poverty_level = "Estimate!!Total!!Population for whom poverty status is determined!!ALL INDIVIDUALS WITH INCOME BELOW THE FOLLOWING POVERTY RATIOS!!185 percent of poverty level",
+  ) %>%
+  tidyr::separate("Geographic Area Name",
+           c("census_tract", "county", "state"),
+           sep = ", ")
+
+s1701_poverty_tracts$county <- gsub(" County", "", s1701_poverty_tracts$county, fixed = TRUE)
+
+snap_ed_eligibility_tracts <- s1701_poverty_tracts[,
+                                      c(
+                                        "AFFGEOID",
+                                        "census_tract",
+                                        "county",
+                                        "state",
+                                        "total_population",
+                                        "individuals_income_below_185_percent_poverty_level"
+                                      )]
+
+snap_ed_eligibility_tracts$census_tract <- gsub("Census Tract ", "", snap_ed_eligibility_tracts$census_tract, fixed = TRUE)
+
+# utils function for calculating percent?
+snap_ed_eligibility_tracts$snap_eligibility_percent <-
+  round(
+    100 * (
+      snap_ed_eligibility_tracts$individuals_income_below_185_percent_poverty_level / snap_ed_eligibility_tracts$total_population
+    )
+  )
+
+# was named il_tracts_sf_merged, change in modules/app.R
+snap_ed_eligibility_tracts_sf <- sf::merge(il_tracts_sf, snap_ed_eligibility_tracts, by = "AFFGEOID") #missing two tracts?
+
+# usethis::use_data(snap_ed_eligibility_tracts_sf, overwrite = TRUE)
+
 # Community profile data
 
 s1701_poverty_counties <-
