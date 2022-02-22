@@ -6,7 +6,7 @@
 
 s1701_poverty_tracts <-
   data.table::fread(
-    "ACSST5Y2019.S1701_data_with_overlays_2021-03-11T131230.csv",
+    "data-raw/ACSST5Y2019.S1701_data_with_overlays_2021-03-11T131230.csv",
     skip = 1,
     select = c(
       "id",
@@ -46,12 +46,12 @@ snap_ed_eligibility_tracts <- s1701_poverty_tracts[,
 
 snap_ed_eligibility_tracts$census_tract <- gsub("Census Tract ", "", snap_ed_eligibility_tracts$census_tract, fixed = TRUE)
 
-# utils function for calculating percent?
-snap_ed_eligibility_tracts$snap_eligibility_percent <-
-  round(
-    100 * (
-      snap_ed_eligibility_tracts$individuals_income_below_185_percent_poverty_level / snap_ed_eligibility_tracts$total_population
-    )
+snap_ed_eligibility_tracts <-
+  percent(
+    snap_ed_eligibility_tracts,
+    "snap_eligibility_percent",
+    "individuals_income_below_185_percent_poverty_level",
+    "total_population"
   )
 
 # was named il_tracts_sf_merged, change in modules/app.R
