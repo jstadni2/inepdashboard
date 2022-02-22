@@ -6,13 +6,10 @@
 #'
 #' @noRd
 
-# utils function for calculating percent
-# used in census.R and profile server script
-# eg:
-
 #' Create percentage variable in data.frame
 #' 
 #' \code{percent} returns a data.frame with a percentage variable for the given numerator and denominator.
+#' Used in census.R and profile server script
 #'
 #' @param df A data.frame containing numerator and denominator variable used for the percent variable.
 #' @param percent_name A name for the resulting percent variable.
@@ -28,9 +25,4 @@ percent <- function(df, percent_name, num, denom) {
   df
 }
 
-# snap_ed_eligibility_tracts$snap_eligibility_percent <-
-#   round(
-#     100 * (
-#       snap_ed_eligibility_tracts$individuals_income_below_185_percent_poverty_level / snap_ed_eligibility_tracts$total_population
-#     )
-#   )
+
