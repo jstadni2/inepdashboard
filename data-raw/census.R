@@ -217,14 +217,6 @@ s1602_lep_places <-
     )
   )
 
-adult_obesity <-
-  data.table::fread(
-    "2021 County Health Rankings Illinois Data - v1 - Ranked Measure Data.csv",
-    skip = 1,
-    select = c("FIPS",
-               "State",
-               "County",
-               "% Adults with Obesity")
-  )
+
 
 # usethis::use_data(census, overwrite = TRUE)
