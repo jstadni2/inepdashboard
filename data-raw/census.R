@@ -18,7 +18,7 @@ s1701_poverty_tracts <-
 
 s2_available <- !inherits(try(sf::sf_use_s2(TRUE), silent = TRUE), "try-error")
 
-il_tracts_sf <- sf::st_read("./cb_2019_17_tract_500k")
+il_tracts_sf <- sf::st_read("data-raw/cb_2019_17_tract_500k")
 
 ## SNAP Eligible Individuals/% Tracts Layer
 
