@@ -2,11 +2,13 @@
 
 test_that("program_area_counts", {
   
-  program_id <- seq(1, 5)
-  site_id <- c(1, 2, 2, 3, 3)
-  name <- paste0("Program Activity ", program_id)
-  program_area <- c("EFNEP", "SNAP-Ed", "SNAP-Ed", "SNAP-Ed", "EFNEP")
-  pa <-  data.frame(program_id, name, program_area, site_id)
+  pa <-
+    data.frame(
+      program_id = seq(1, 5),
+      name = paste0("Program Activity ", seq(1, 5)),
+      program_area = c("EFNEP", "SNAP-Ed", "SNAP-Ed", "SNAP-Ed", "EFNEP"),
+      site_id =  c(1, 2, 2, 3, 3)
+    )
 
   # Using package-defined function
   
@@ -28,4 +30,33 @@ test_that("program_area_counts", {
     rowSums(sites_pa2[, c("snap_ed_program_activities", "efnep_program_activities")],  na.rm = TRUE)
   
   expect_equal(sites_pa1, sites_pa2)
+})
+
+test_that("unique_child_sites", {
+  ia <-
+    data.frame(
+      activity_id = seq(1, 5),
+      title = paste0("Indirect Activity ", seq(1, 5)),
+      program_area = c("EFNEP", "SNAP-Ed", "SNAP-Ed", "SNAP-Ed", "EFNEP")
+    )
+  
+  ic <-
+    data.frame(
+      activity_id = rep(seq(1, 3), length.out = 8),
+      channel_id = seq(1, 8),
+      site_id = rep(c(seq(1, 5), NA), length.out = 8)
+    )
+  
+  # Using manual operations
+  
+  ia_ic1 <-
+    dplyr::left_join(ia, ic[c("activity_id", "channel_id", "site_id")], by = "activity_id") %>%
+    dplyr::filter(!is.na(site_id)) %>%
+    dplyr::distinct(activity_id, title, program_area, site_id)
+  
+  # Using package-defined function
+  
+  ia_ic2 <- unique_child_sites(ia, ic, activity_id, title, channel_id)
+  
+  expect_equal(ia_ic1, ia_ic2)
 })

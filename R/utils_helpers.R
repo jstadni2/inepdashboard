@@ -6,9 +6,9 @@
 #'
 #' @noRd
 
-#' Create percentage variable in data.frame
+#' Create percentage variable in data frame
 #' 
-#' \code{percent} returns a data.frame with a percentage variable for the given numerator and denominator.
+#' \code{percent} returns a data frame with a percentage variable for the given numerator and denominator.
 #' Used in census.R and profile server script
 #'
 #' @param df A data.frame containing numerator and denominator variable used for the percent variable.
@@ -16,7 +16,7 @@
 #' @param num The name of a numeric variable in \code{df} used as the numerator for calculating the percent variable.
 #' @param denom The name of a numeric variable in \code{df} used as the denominator for calculating the percent variable.
 #'
-#' @return A data.frame containing the percent variable.
+#' @return A data frame containing the percent variable.
 #' @export # export not necessary? 
 #'
 #' @examples

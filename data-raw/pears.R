@@ -14,4 +14,95 @@ coa_members <- readxl::read_xlsx("data-raw/Coalitions_Export.xlsx", sheet = "Mem
 
 part <- readxl::read_xlsx("data-raw/Partnerships_Export.xlsx", sheet = "Partnership Data") #update file
 
+pa2 <- rename(pa, "program_area" = "program_areas")
+
+sites_pa <-
+  program_area_counts(pa2,
+                      c("program_id", "name", "program_area", "site_id"),
+                      "program_activities")
+#unique_child_sites
+ia_ic <-
+  dplyr::left_join(ia, ia_ic[c("activity_id", "channel_id", "site_id")], by = "activity_id") %>%
+  dplyr::filter(!is.na(site_id)) %>%
+  dplyr::distinct(activity_id, title, program_area, site_id)
+sites_ia <-
+  program_area_counts(ia_ic,
+                      c("activity_id", "title", "program_area", "site_id"),
+                      "indirect_activities")
+
+sites_pse <-
+  program_area_counts(pse,
+                      c("pse_id", "name", "program_area", "site_id"),
+                      "pse_site_activities")
+
+coa_members <-
+  left_join(coa, coa_members[c("coalition_id", "member_id", "site_id")], by = "coalition_id") %>%
+  filter(!is.na(site_id)) %>%
+  distinct(coalition_id, name, program_area, site_id)
+sites_coa <-
+  program_area_counts(coa_members,
+                      c("coalition_id", "name", "program_area", "site_id"),
+                      "coalitions")
+
+sites_part <-
+  program_area_counts(
+    part,
+    c(
+      "partnership_id",
+      "partnership_name",
+      "program_area",
+      "site_id"
+    ),
+    "partnerships"
+  )
+
+site_programming <-
+  sites[c("site_id",
+          "site_name",
+          "city__county",
+          "latitude",
+          "longitude")] %>%
+  left_join(sites_pa, by = "site_id") %>%
+  left_join(sites_ia, by = "site_id") %>%
+  left_join(sites_pse, by = "site_id") %>%
+  left_join(sites_coa, by = "site_id") %>%
+  left_join(sites_part, by = "site_id") %>%
+  filter(
+    !is.na(program_activities) |
+      !is.na(pse_site_activities) |
+      !is.na(coalitions) | !is.na(partnerships)
+  )
+
+cols <- colnames(site_programming)
+
+# create function
+program_bool <- function(df, program) {
+  #program: snake case character value for program variable
+  out_df <- df
+  cols <- colnames(out_df)
+  program_cols <- cols[grepl(paste0("^", program), cols)]
+  out_df[program] <-rowSums(out_df[, program_cols],  na.rm = TRUE)
+  out_df[program] <- ifelse(out_df[program] > 0, "Yes", "No")
+  out_df
+}
+
+site_programming <- program_bool(site_programming, "snap_ed")
+site_programming <- program_bool(site_programming, "efnep")
+
+site_programming <-
+  site_programming[, c(
+    "site_id",
+    "site_name",
+    "city__county",
+    "latitude",
+    "longitude",
+    "snap_ed",
+    "efnep",
+    "program_activities",
+    "indirect_activities",
+    "pse_site_activities",
+    "coalitions",
+    "partnerships"
+  )]
+
 # usethis::use_data(pears, overwrite = TRUE)
