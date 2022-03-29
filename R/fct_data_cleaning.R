@@ -35,22 +35,21 @@ program_area_counts <- function(df, fields, module) {
 #' Extract unique module sites from child records.
 #'
 #' @param parent_df A data frame of a PEARS module export containing module id, module name, and \code{program_area}.
-#' @param child_df A data frame of the PEARS module's child records containing module id, child_id, and \code{site_id}.
+#' @param child_df A data frame of the PEARS module's child records containing module id, and \code{site_id}.
 #' @param parent_id 
 #' @param parent_name 
-#' @param child_id 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-unique_child_sites <- function(parent_df, child_df, parent_id, parent_name, child_id) {
+unique_child_sites <- function(parent_df, child_df, parent_id, parent_name) {
   by <-
     setNames(dplyr::quo_name(dplyr::enquo(parent_id)),
              dplyr::quo_name(dplyr::enquo(parent_id)))
   out_df <-
     dplyr::left_join(parent_df,
-                     dplyr::select(child_df, {{ parent_id }}, {{ child_id }}, site_id),
+                     dplyr::select(child_df, {{ parent_id }}, site_id),
                      by = by) %>%
     dplyr::filter(!is.na(site_id)) %>%
     dplyr::distinct({{ parent_id }}, {{ parent_name }}, program_area, site_id)

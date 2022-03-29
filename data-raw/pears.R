@@ -14,17 +14,15 @@ coa_members <- readxl::read_xlsx("data-raw/Coalitions_Export.xlsx", sheet = "Mem
 
 part <- readxl::read_xlsx("data-raw/Partnerships_Export.xlsx", sheet = "Partnership Data") #update file
 
-pa2 <- rename(pa, "program_area" = "program_areas")
+pa2 <- dplyr::rename(pa, "program_area" = "program_areas")
 
 sites_pa <-
   program_area_counts(pa2,
                       c("program_id", "name", "program_area", "site_id"),
                       "program_activities")
-#unique_child_sites
+
 ia_ic <-
-  dplyr::left_join(ia, ia_ic[c("activity_id", "channel_id", "site_id")], by = "activity_id") %>%
-  dplyr::filter(!is.na(site_id)) %>%
-  dplyr::distinct(activity_id, title, program_area, site_id)
+  unique_child_sites(ia, ia_ic, activity_id, title) 
 sites_ia <-
   program_area_counts(ia_ic,
                       c("activity_id", "title", "program_area", "site_id"),
@@ -36,9 +34,7 @@ sites_pse <-
                       "pse_site_activities")
 
 coa_members <-
-  left_join(coa, coa_members[c("coalition_id", "member_id", "site_id")], by = "coalition_id") %>%
-  filter(!is.na(site_id)) %>%
-  distinct(coalition_id, name, program_area, site_id)
+  unique_child_sites(coa, coa_members, coalition_id, name) 
 sites_coa <-
   program_area_counts(coa_members,
                       c("coalition_id", "name", "program_area", "site_id"),

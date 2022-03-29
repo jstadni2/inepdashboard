@@ -56,7 +56,7 @@ test_that("unique_child_sites", {
   
   # Using package-defined function
   
-  ia_ic2 <- unique_child_sites(ia, ic, activity_id, title, channel_id)
+  ia_ic2 <- unique_child_sites(ia, ic, activity_id, title)
   
   expect_equal(ia_ic1, ia_ic2)
 })
