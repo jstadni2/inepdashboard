@@ -45,10 +45,13 @@ program_area_counts <- function(df, fields, module) {
 #'
 #' @examples
 unique_child_sites <- function(parent_df, child_df, parent_id, parent_name, child_id) {
+  by <-
+    setNames(dplyr::quo_name(dplyr::enquo(parent_id)),
+             dplyr::quo_name(dplyr::enquo(parent_id)))
   out_df <-
     dplyr::left_join(parent_df,
                      dplyr::select(child_df, {{ parent_id }}, {{ child_id }}, site_id),
-                     by = {{ parent_id }}) %>%
+                     by = by) %>%
     dplyr::filter(!is.na(site_id)) %>%
     dplyr::distinct({{ parent_id }}, {{ parent_name }}, program_area, site_id)
   out_df
