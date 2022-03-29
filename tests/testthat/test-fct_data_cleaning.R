@@ -60,3 +60,38 @@ test_that("unique_child_sites", {
   
   expect_equal(ia_ic1, ia_ic2)
 })
+
+test_that("program_bool", {
+  site_programming <-
+    data.frame(
+      site_id = seq(1, 5),
+      site_name = paste0("Site ", seq(1, 5)),
+      snap_ed_program_activities = c(NA, 1, 3, NA, NA),
+      efnep_program_activities = c(1, 3, NA, NA, 2),
+      snap_ed_indirect_activities = c(NA, NA, 1, NA, 2),
+      efnep_indirect_activities = c(1, 3, NA, NA, NA)
+    )
+  
+  # Using manual operations
+  
+  site_programming1 <- site_programming
+  
+  cols <- colnames(site_programming1)
+  program <- "snap_ed"
+  program_cols <- cols[grepl(paste0("^", program), cols)]
+  site_programming1[program] <-rowSums(site_programming1[, program_cols],  na.rm = TRUE)
+  site_programming1[program] <- ifelse(site_programming1[program] > 0, "Yes", "No")
+  
+  cols <- colnames(site_programming1)
+  program <- "efnep"
+  program_cols <- cols[grepl(paste0("^", program), cols)]
+  site_programming1[program] <-rowSums(site_programming1[, program_cols],  na.rm = TRUE)
+  site_programming1[program] <- ifelse(site_programming1[program] > 0, "Yes", "No")
+  
+  # Using package-defined function
+  
+  site_programming2 <- program_bool(site_programming, "snap_ed")
+  site_programming2 <- program_bool(site_programming2, "efnep")
+  
+  expect_equal(site_programming1, site_programming2)
+})

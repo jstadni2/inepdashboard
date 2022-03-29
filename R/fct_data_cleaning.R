@@ -55,3 +55,21 @@ unique_child_sites <- function(parent_df, child_df, parent_id, parent_name) {
     dplyr::distinct({{ parent_id }}, {{ parent_name }}, program_area, site_id)
   out_df
 }
+
+#' Create Boolean variable for site program areas
+#'
+#' @param site_programming A data frame of a PEARS sites with program area counts for each module.
+#' @param program A snake case character variable for the program area used to create the Boolean variable.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+program_bool <- function(site_programming, program) {
+  out_df <- site_programming
+  cols <- colnames(out_df)
+  program_cols <- cols[grepl(paste0("^", program), cols)]
+  out_df[program] <-rowSums(out_df[, program_cols],  na.rm = TRUE)
+  out_df[program] <- ifelse(out_df[program] > 0, "Yes", "No")
+  out_df
+}

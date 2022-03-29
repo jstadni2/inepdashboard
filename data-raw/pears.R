@@ -52,35 +52,20 @@ sites_part <-
     "partnerships"
   )
 
+site_programming_dfs <- list(sites[c("site_id",
+                                     "site_name",
+                                     "city__county",
+                                     "latitude",
+                                     "longitude")],
+                             sites_pa, sites_ia, sites_pse, sites_coa, sites_part)
+
 site_programming <-
-  sites[c("site_id",
-          "site_name",
-          "city__county",
-          "latitude",
-          "longitude")] %>%
-  left_join(sites_pa, by = "site_id") %>%
-  left_join(sites_ia, by = "site_id") %>%
-  left_join(sites_pse, by = "site_id") %>%
-  left_join(sites_coa, by = "site_id") %>%
-  left_join(sites_part, by = "site_id") %>%
-  filter(
+  purrr::reduce(site_programming_dfs, dplyr::left_join, by = "site_id") %>%
+  dplyr::filter(
     !is.na(program_activities) |
       !is.na(pse_site_activities) |
       !is.na(coalitions) | !is.na(partnerships)
   )
-
-cols <- colnames(site_programming)
-
-# create function
-program_bool <- function(df, program) {
-  #program: snake case character value for program variable
-  out_df <- df
-  cols <- colnames(out_df)
-  program_cols <- cols[grepl(paste0("^", program), cols)]
-  out_df[program] <-rowSums(out_df[, program_cols],  na.rm = TRUE)
-  out_df[program] <- ifelse(out_df[program] > 0, "Yes", "No")
-  out_df
-}
 
 site_programming <- program_bool(site_programming, "snap_ed")
 site_programming <- program_bool(site_programming, "efnep")
@@ -93,12 +78,13 @@ site_programming <-
     "latitude",
     "longitude",
     "snap_ed",
-    "efnep",
-    "program_activities",
-    "indirect_activities",
-    "pse_site_activities",
-    "coalitions",
-    "partnerships"
+    "efnep"# ,
+    # head following fields for inep dashboard
+    # "program_activities",
+    # "indirect_activities",
+    # "pse_site_activities",
+    # "coalitions",
+    # "partnerships"
   )]
 
 # usethis::use_data(pears, overwrite = TRUE)
