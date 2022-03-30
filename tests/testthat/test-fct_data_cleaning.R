@@ -95,3 +95,13 @@ test_that("program_bool", {
   
   expect_equal(site_programming1, site_programming2)
 })
+
+test_that ("ff_query", {
+  # Using default parameters
+  
+  q1 <- ff_query(key = "1234")
+  q2 <- "https://api-v2-prod-dot-foodfinder-183216.uc.r.appspot.com/partners/providers?key=1234&limit=10000&offset=1&format=1&min_lat=36.7335953714124&max_lat=42.816745766624&min_lon=-91.9198367832536&max_lon-87.3674917331893"
+  expect_equal(q1, q2)
+})
+
+# test ff_import?

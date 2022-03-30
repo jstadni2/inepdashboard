@@ -73,3 +73,102 @@ program_bool <- function(site_programming, program) {
   out_df[program] <- ifelse(out_df[program] > 0, "Yes", "No")
   out_df
 }
+
+#' Generate queries for the FoodFinder API
+#'
+#' @param key 
+#' @param limit 
+#' @param offset 
+#' @param format 
+#' @param min_lat 
+#' @param max_lat 
+#' @param min_lon 
+#' @param max_lon 
+#'
+#' @return A string for the FoodFinder API query.
+#' @export
+#'
+#' @examples
+ff_query <-
+  function(key,
+           limit = 10000,
+           offset = 1,
+           format = 1,
+           min_lat = 36.73359537141243,
+           max_lat = 42.81674576662397,
+           min_lon = -91.91983678325361,
+           max_lon = -87.36749173318934) {
+    query = paste0(
+      "https://api-v2-prod-dot-foodfinder-183216.uc.r.appspot.com/partners/providers?",
+      "key=", key, #determine how to store key in project env
+      "&limit=",  limit,
+      "&offset=", offset,
+      "&format=", format,
+      "&min_lat=", min_lat,
+      "&max_lat=", max_lat,
+      "&min_lon=", min_lon,
+      "&max_lon", max_lon
+    )
+    query
+  }
+
+#' Import sites from FoodFinder
+#'
+#' @param query A string used to call the FoodFinder API.
+#'
+#' @return A sf of FoodFinder sites, reformatted for use in the Community Sites Reactive.
+#' @export
+#'
+#' @examples
+ff_import <- function(query) {
+  # input arg for site_types?
+  food_finder_sites <- geojsonsf::geojson_sf(query)
+  
+  food_finder_sites <-
+    food_finder_sites %>%  tidyr::extract(
+      geometry,
+      into = c('latitude', 'longitude'),
+      '\\((.*),(.*)\\)',
+      conv = T
+    )
+  
+  food_finder_sites <-
+    dplyr::select(as.data.frame(food_finder_sites), -geometry)
+  
+  food_finder_sites$site_type <-
+    textclean::mgsub(
+      food_finder_sites$filter_id,
+      seq(1, 6),
+      c(
+        "School & Summer Meals",
+        "Farmers Markets",
+        "Food Pantry/Meal Site",
+        "Grocery Stores",
+        "Senior Food Resources",
+        "SNAP & WIC Offices"
+      )
+    )
+  
+  food_finder_sites <-
+    food_finder_sites %>% dplyr::filter(site_type == "Food Pantry/Meal Site") %>% dplyr::select(c(
+      "name",
+      "address",
+      "city",
+      "state",
+      "zip",
+      "latitude",
+      "longitude",
+      "site_type"
+    ))
+  
+  food_finder_sites <-
+    food_finder_sites  %>% dplyr::rename(
+      "site_name" = "name",
+      "site_address" = "address",
+      "site_city" = "city",
+      "site_state" = "state",
+      "site_zip" = "zip"
+    )
+  
+  food_finder_sites
+}
