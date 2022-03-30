@@ -137,7 +137,7 @@ clean_census_data <-
       out_df$geographic_area_name  <-
         gsub("De Pue", "DePue", out_df$geographic_area_name, fixed = TRUE) #still necessary?
       out_df <-
-        out_df %>% filter(id != "1600000US1728950") #still necessary?
+        out_df[out_df$id != "1600000US1728950", ] #still necessary?
       
     }
     
@@ -160,7 +160,30 @@ clean_census_data <-
       gsub("_", " ", out_df[[pivot_col]]) %>% stringr::str_to_title()
     out_df
 }
-    
+   
+#' \code{rbind} dataframes for each poverty status
+#'
+#' @param total_pop_df Output of \code{clean_census_data()} for \code{total_population} fields.
+#' @param below_poverty_df Output of \code{clean_census_data()} for \code{below_poverty_level} fields.
+#' @param x A string for the name of the dataframe's categorical variable.
+#'
+#' @return The dataframe resulting from concatenating the input dataframes, with an additional categorical variable \code{poverty_status}.
+#' @export
+#'
+#' @examples
+rbind_poverty_status <- function(total_pop_df, below_poverty_df, x) {
+  
+  total_pop_df_c <- total_pop_df
+  below_poverty_df_c <- below_poverty_df
+  
+  total_pop_df_c$poverty_status <- "Total Population"
+  below_poverty_df_c$poverty_status <- "Below 100% Poverty Level"
+  
+  out_df <- rbind(total_pop_df_c, below_poverty_df_c)
+  out_df[[x]] <- out_df[[x]] %>% stringr::str_to_title()
+  out_df
+}
+ 
 # map module functions
 
 #' Generate queries for the FoodFinder API
