@@ -455,4 +455,258 @@ poverty_individuals_age_cities$age <-
     c("Under 5", "5 To 17", "18 To 34", "35 To 64", "65 And Over")
   )
 
+#Poverty Status of Individuals by Sex
+
+cols <- c(
+  "id",
+  "Geographic Area Name",
+  "Estimate!!Total!!Population for whom poverty status is determined",
+  "Estimate!!Total!!Population for whom poverty status is determined!!SEX!!Male",
+  "Estimate!!Total!!Population for whom poverty status is determined!!SEX!!Female"
+)
+
+census_data <- s1701_poverty_counties[, ..cols]
+
+rename_cols <- tail(cols, 3)
+
+rename_values <- c(
+  "total_population",
+  "total_population_sex_male",
+  "total_population_sex_female"
+)	
+
+pivot_col <- "sex"
+pivot_cols_prefix <- "total_population_sex_"
+values_to <- "individuals"
+
+poverty_individuals_sex_counties1 <-
+  clean_census_data(
+    census_data,
+    rename_cols,
+    rename_values,
+    geography = "counties",
+    pivot_cols_prefix,
+    pivot_col,
+    values_to,
+    ethnicity = FALSE
+  )
+
+census_data <- s1701_poverty_places[, ..cols]
+
+poverty_individuals_sex_cities1 <-
+  clean_census_data(
+    census_data,
+    rename_cols,
+    rename_values,
+    geography = "places",
+    pivot_cols_prefix,
+    pivot_col,
+    values_to,
+    ethnicity = FALSE
+  )
+
+cols <- c(
+  "id",
+  "Geographic Area Name",
+  "Estimate!!Total!!Population for whom poverty status is determined",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!SEX!!Male",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!SEX!!Female"
+)
+
+census_data <- s1701_poverty_counties[, ..cols]
+
+rename_cols <- tail(cols, 3)
+
+rename_values <- c(
+  "total_population",
+  "below_poverty_level_male",
+  "below_poverty_level_female"
+)	
+
+pivot_cols_prefix <- "below_poverty_level_"
+
+poverty_individuals_sex_counties2 <-
+  clean_census_data(
+    census_data,
+    rename_cols,
+    rename_values,
+    geography = "counties",
+    pivot_cols_prefix,
+    pivot_col,
+    values_to,
+    ethnicity = FALSE
+  )
+
+census_data <- s1701_poverty_places[, ..cols]
+
+poverty_individuals_sex_cities2 <-
+  clean_census_data(
+    census_data,
+    rename_cols,
+    rename_values,
+    geography = "places",
+    pivot_cols_prefix,
+    pivot_col,
+    values_to,
+    ethnicity = FALSE
+  )
+
+poverty_individuals_sex_counties <-
+  rbind_poverty_status(poverty_individuals_sex_counties1,
+                      poverty_individuals_sex_counties2,
+                      "sex")
+poverty_individuals_sex_cities <-
+  rbind_poverty_status(poverty_individuals_sex_cities1,
+                      poverty_individuals_sex_cities2,
+                      "sex")
+
+#Poverty Status of Individuals by Race/Ethnicity
+
+cols <- c(
+  "id",
+  "Geographic Area Name",
+  "Estimate!!Total!!Population for whom poverty status is determined",
+  "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!White alone",
+  "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Black or African American alone",
+  "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!American Indian and Alaska Native alone",
+  "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Asian alone",
+  "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Native Hawaiian and Other Pacific Islander alone",
+  "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Some other race alone",
+  "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Two or more races",
+  "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Hispanic or Latino origin (of any race)"
+)
+
+census_data <- s1701_poverty_counties[, ..cols]
+
+rename_cols <- tail(cols, 9)
+
+rename_values <- c(
+  "total_population",
+  "total_population_demo_white",
+  "total_population_demo_black_or_african_american",
+  "total_population_demo_american_indian_and_alaska_native",
+  "total_population_demo_asian",
+  "total_population_demo_native_hawaiian_and_other_pacific_islander",
+  "total_population_demo_some_other_race",
+  "total_population_demo_two_or_more_races",
+  "total_population_demo_hispanic_or_latino_origin"
+)	
+
+pivot_col <- "demo"
+pivot_cols_prefix <- "total_population_demo_"
+values_to <- "individuals"
+ethnic_col <- "total_population_demo_hispanic_or_latino_origin"
+total_col <- "total_population"
+
+poverty_individuals_demo_counties1 <-
+  clean_census_data(
+    census_data,
+    rename_cols,
+    rename_values,
+    geography = "counties",
+    pivot_cols_prefix,
+    pivot_col,
+    values_to,
+    ethnicity = TRUE,
+    ethnic_col,
+    total_col
+  )
+
+census_data <- s1701_poverty_places[, ..cols]
+
+poverty_individuals_demo_cities1 <-
+  clean_census_data(
+    census_data,
+    rename_cols,
+    rename_values,
+    geography = "places",
+    pivot_cols_prefix,
+    pivot_col,
+    values_to,
+    ethnicity = TRUE,
+    ethnic_col,
+    total_col
+  )
+
+cols <- c(
+  "id",
+  "Geographic Area Name",
+  "Estimate!!Total!!Population for whom poverty status is determined",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!White alone",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Black or African American alone",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!American Indian and Alaska Native alone",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Asian alone",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Native Hawaiian and Other Pacific Islander alone",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Some other race alone",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Two or more races",
+  "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Hispanic or Latino origin (of any race)"
+)
+
+census_data <- s1701_poverty_counties[, ..cols]
+
+rename_cols <- tail(cols, 10)
+
+rename_values <- c(
+  "total_population",
+  "total_population_below_poverty_level",
+  "below_poverty_level_white",
+  "below_poverty_level_black_or_african_american",
+  "below_poverty_level_american_indian_and_alaska_native",
+  "below_poverty_level_asian",
+  "below_poverty_level_native_hawaiian_and_other_pacific_islander",
+  "below_poverty_level_some_other_race",
+  "below_poverty_level_two_or_more_races",
+  "below_poverty_level_hispanic_or_latino_origin"
+)	
+
+pivot_cols_prefix <- "below_poverty_level_"
+ethnic_col <- "below_poverty_level_hispanic_or_latino_origin"
+total_col <- "total_population_below_poverty_level"
+
+poverty_individuals_demo_counties2 <-
+  clean_census_data(
+    census_data,
+    rename_cols,
+    rename_values,
+    geography = "counties",
+    pivot_cols_prefix,
+    pivot_col,
+    values_to,
+    ethnicity = TRUE,
+    ethnic_col,
+    total_col
+  )
+
+census_data <- s1701_poverty_places[, ..cols]
+
+poverty_individuals_demo_cities2 <-
+  clean_census_data(
+    census_data,
+    rename_cols,
+    rename_values,
+    geography = "places",
+    pivot_cols_prefix,
+    pivot_col,
+    values_to,
+    ethnicity = TRUE,
+    ethnic_col,
+    total_col
+  )
+
+poverty_individuals_demo_counties2 <-
+  poverty_individuals_demo_counties2 %>% select(-total_population_below_poverty_level)
+poverty_individuals_demo_cities2 <-
+  poverty_individuals_demo_cities2 %>% select(-total_population_below_poverty_level)
+
+poverty_individuals_demo_counties <-
+  rbind_poverty_status(poverty_individuals_demo_counties1,
+                      poverty_individuals_demo_counties2,
+                      "demo")
+poverty_individuals_demo_cities <-
+  rbind_poverty_status(poverty_individuals_demo_cities1,
+                      poverty_individuals_demo_cities2,
+                      "demo")
+
+
 # usethis::use_data(census, overwrite = TRUE)
