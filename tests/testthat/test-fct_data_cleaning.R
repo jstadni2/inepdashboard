@@ -96,6 +96,8 @@ test_that("program_bool", {
   expect_equal(site_programming1, site_programming2)
 })
 
+# map module function tests
+
 test_that ("ff_query", {
   # Using default parameters
   
@@ -105,3 +107,7 @@ test_that ("ff_query", {
 })
 
 # test ff_import?
+
+# census.R function tests
+
+# test clean_census_data by comparing current output to previous outputs

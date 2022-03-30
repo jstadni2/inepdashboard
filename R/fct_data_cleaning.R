@@ -74,6 +74,95 @@ program_bool <- function(site_programming, program) {
   out_df
 }
 
+# census.R functions
+
+#' Prepare Census subject table for use in Community Profile reactives
+#'
+#' @param census_data A df of ACS subject table. 
+#' @param rename_cols A character vector of variable names that should be renamed.
+#' @param rename_values A character vector of variable names that \code{rename_cols} should be renamed to.
+#' @param geography A string representing the geography of the subject table ("counties", or "places").
+#' @param pivot_cols_prefix A regular expression used to select variables to pivot and remove matching text from the start of each variable name.
+#' @param pivot_col A string specifying the name of the column to create from the data stored in the column names selected from \code{pivot_cols_prefix}.
+#' @param values_to A string specifying the name of the column to create from the data stored in column values.
+#' @param ethnicity Logical, whether or not non-hispanic or latino ethnicity needs to be calculated.
+#' @param ethnic_col A string specifying the name of the column for hispanic/latino origin (optional unless  \code{ethnicity == TRUE}).
+#' @param total_col A string representing the renamed variable for the total value of the pivoted columns (optional unless \code{ethnicity == TRUE}).
+#'
+#' @return A dataframe of pivoted ACS subject table data prepared for use in Community Profile reactives.
+#' @export
+#'
+#' @examples
+clean_census_data <-
+  function(census_data,
+           rename_cols,
+           rename_values,
+           geography,
+           pivot_cols_prefix,
+           pivot_col,
+           values_to,
+           ethnicity = FALSE,
+           ethnic_col,
+           total_col) {
+    
+    out_df <- census_data
+    
+    out_df <-
+      out_df %>% dplyr::rename_at(dplyr::all_of(rename_cols), ~ rename_values)
+    
+    out_df <-
+      out_df %>% dplyr::rename(geographic_area_name = "Geographic Area Name")
+    
+    if (geography == "counties") {
+      
+      out_df$geographic_area_name <-
+        gsub(" County", "", out_df$geographic_area_name)
+      out_df  <-
+        out_df  %>% tidyr::separate("geographic_area_name", c("county", "state"), sep = ", ")
+      
+    } else {
+      
+      out_df$geographic_area_name <-
+        textclean::mgsub(
+          out_df$geographic_area_name,
+          c(
+            " city, Illinois",
+            " CDP, Illinois",
+            " village, Illinois",
+            " town, Illinois"
+          ),
+          ""
+        )
+      
+      out_df$geographic_area_name  <-
+        gsub("De Pue", "DePue", out_df$geographic_area_name, fixed = TRUE) #still necessary?
+      out_df <-
+        out_df %>% filter(id != "1600000US1728950") #still necessary?
+      
+    }
+    
+    # Calculate ethnicity complement
+    if (ethnicity == TRUE) {
+      no_ethnic_col <- paste(pivot_cols_prefix, "no_", gsub(pivot_cols_prefix, "", ethnic_col), sep = "")
+      out_df[[no_ethnic_col]] <- out_df[[total_col]] - out_df[[ethnic_col]]
+    }
+    
+    out_df <- out_df %>%
+      tidyr::pivot_longer(
+        cols = dplyr::starts_with(pivot_cols_prefix),
+        names_to = pivot_col,
+        names_prefix = pivot_cols_prefix,
+        values_to = values_to,
+        values_drop_na = TRUE
+      )
+    
+    out_df[[pivot_col]] <-
+      gsub("_", " ", out_df[[pivot_col]]) %>% stringr::str_to_title()
+    out_df
+}
+    
+# map module functions
+
 #' Generate queries for the FoodFinder API
 #'
 #' @param key 

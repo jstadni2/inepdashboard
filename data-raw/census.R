@@ -63,7 +63,7 @@ snap_ed_eligibility_tracts_sf <- sf::merge(il_tracts_sf, snap_ed_eligibility_tra
 
 s1701_poverty_counties <-
   data.table::fread(
-    "ACSST5Y2019.S1701_data_with_overlays_2021-11-08T111346.csv",
+    "data-raw/ACSST5Y2019.S1701_data_with_overlays_2021-11-08T111346.csv",
     skip = 1,
     select = c(
       "id",
@@ -106,7 +106,7 @@ s1701_poverty_counties <-
 
 s1701_poverty_places <-
   data.table::fread(
-    "ACSST5Y2019.S1701_data_with_overlays_2021-04-28T154515.csv",
+    "data-raw/ACSST5Y2019.S1701_data_with_overlays_2021-04-28T154515.csv",
     skip = 1,
     select = c(
       "id",
@@ -149,7 +149,7 @@ s1701_poverty_places <-
 
 s2201_snap_counties <-
   data.table::fread(
-    "ACSST5Y2019.S2201_data_with_overlays_2021-12-16T152331.csv",
+    "data-raw/ACSST5Y2019.S2201_data_with_overlays_2021-12-16T152331.csv",
     skip = 1,
     select = c(
       "id",
@@ -168,7 +168,7 @@ s2201_snap_counties <-
 
 s2201_snap_places <-
   data.table::fread(
-    "ACSST5Y2019.S2201_data_with_overlays_2021-05-04T143832.csv",
+    "data-raw/ACSST5Y2019.S2201_data_with_overlays_2021-05-04T143832.csv",
     skip = 1,
     select = c(
       "id",
@@ -187,7 +187,7 @@ s2201_snap_places <-
 
 s1602_lep_counties <-
   data.table::fread(
-    "ACSST5Y2019.S1602_data_with_overlays_2021-12-16T145907.csv",
+    "data-raw/ACSST5Y2019.S1602_data_with_overlays_2021-12-16T145907.csv",
     skip = 1,
     select = c(
       "id",
@@ -203,7 +203,7 @@ s1602_lep_counties <-
 
 s1602_lep_places <-
   data.table::fread(
-    "ACSST5Y2019.S1602_data_with_overlays_2021-05-05T160010.csv",
+    "data-raw/ACSST5Y2019.S1602_data_with_overlays_2021-05-05T160010.csv",
     skip = 1,
     select = c(
       "id",
