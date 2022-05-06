@@ -1,34 +1,84 @@
 ## code to prepare `census` dataset goes here
 
-# Import Census data using tigris instead?
+year <- 2020
+state <- "IL"
 
 # Map data
 
-s1701_poverty_tracts <-
-  data.table::fread(
-    "data-raw/ACSST5Y2019.S1701_data_with_overlays_2021-03-11T131230.csv",
-    skip = 1,
-    select = c(
-      "id",
-      "Geographic Area Name",
-      "Estimate!!Total!!Population for whom poverty status is determined",
-      "Estimate!!Total!!Population for whom poverty status is determined!!ALL INDIVIDUALS WITH INCOME BELOW THE FOLLOWING POVERTY RATIOS!!185 percent of poverty level"
-    )
+acs_st_vars_lookup <-
+  tidycensus::load_variables(year, "acs5/subject", cache = TRUE)
+
+S1701_var_ids <-
+  data.frame(
+    name_e =
+      c(
+        "S1701_C01_001E",
+        "S1701_C01_041E",
+        "S1701_C01_003E",
+        "S1701_C01_004E",
+        "S1701_C01_007E",
+        "S1701_C01_008E",
+        "S1701_C01_010E",
+        "S1701_C02_003E",
+        "S1701_C02_004E",
+        "S1701_C02_007E",
+        "S1701_C02_008E",
+        "S1701_C02_010E",
+        "S1701_C01_011E",
+        "S1701_C01_012E",
+        "S1701_C02_011E",
+        "S1701_C02_012E",
+        "S1701_C01_013E",
+        "S1701_C01_014E",
+        "S1701_C01_015E",
+        "S1701_C01_016E",
+        "S1701_C01_017E",
+        "S1701_C01_018E",
+        "S1701_C01_019E",
+        "S1701_C01_020E",
+        "S1701_C02_001E",
+        "S1701_C02_013E",
+        "S1701_C02_014E",
+        "S1701_C02_015E",
+        "S1701_C02_016E",
+        "S1701_C02_017E",
+        "S1701_C02_018E",
+        "S1701_C02_019E",
+        "S1701_C02_020E"
+      )
   )
+
+S1701_var_ids$name <-
+  stringr::str_sub(S1701_var_ids$name, 1, end = -2)
+
+S1701_var_labels <-
+  dplyr::left_join(S1701_var_ids, acs_st_vars_lookup , by = "name")$label
+
+s1701_poverty_tracts <- tidycensus::get_acs(
+  geography = "tract",
+  variables = S1701_var_ids$name,
+  state = state,
+  year = year,
+  output = "wide" # consider long format and refactor clean_census_data()
+) %>%
+  dplyr::select(-dplyr::ends_with("M"))
+
+s1701_poverty_tracts <-
+  s1701_poverty_tracts %>%
+  dplyr::rename_at(dplyr::vars(S1701_var_ids$name_e), ~ S1701_var_labels)
 
 s2_available <- !inherits(try(sf::sf_use_s2(TRUE), silent = TRUE), "try-error")
 
-il_tracts_sf <- sf::st_read("data-raw/cb_2019_17_tract_500k")
+il_tracts_sf <- tigris::tracts(state = state, year = year)
 
 ## SNAP Eligible Individuals/% Tracts Layer
 
 s1701_poverty_tracts <-
   s1701_poverty_tracts %>% dplyr::rename(
-    AFFGEOID = "id",
     total_population = "Estimate!!Total!!Population for whom poverty status is determined",
     individuals_income_below_185_percent_poverty_level = "Estimate!!Total!!Population for whom poverty status is determined!!ALL INDIVIDUALS WITH INCOME BELOW THE FOLLOWING POVERTY RATIOS!!185 percent of poverty level",
   ) %>%
-  tidyr::separate("Geographic Area Name",
+  tidyr::separate("NAME",
            c("census_tract", "county", "state"),
            sep = ", ")
 
@@ -36,7 +86,7 @@ s1701_poverty_tracts$county <- gsub(" County", "", s1701_poverty_tracts$county, 
 
 snap_ed_eligibility_tracts <- s1701_poverty_tracts[,
                                       c(
-                                        "AFFGEOID",
+                                        "GEOID",
                                         "census_tract",
                                         "county",
                                         "state",
@@ -55,7 +105,7 @@ snap_ed_eligibility_tracts <-
   )
 
 # was named il_tracts_sf_merged, change in modules/app.R
-snap_ed_eligibility_tracts_sf <- sf::merge(il_tracts_sf, snap_ed_eligibility_tracts, by = "AFFGEOID") #missing two tracts?
+snap_ed_eligibility_tracts_sf <- sf::merge(il_tracts_sf, snap_ed_eligibility_tracts, by = "GEOID") #missing two tracts?
 
 # usethis::use_data(snap_ed_eligibility_tracts_sf, overwrite = TRUE)
 

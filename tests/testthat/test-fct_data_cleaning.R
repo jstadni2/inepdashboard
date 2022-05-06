@@ -111,3 +111,5 @@ test_that ("ff_query", {
 # census.R function tests
 
 # test clean_census_data by comparing current output to previous outputs
+
+# test rbind_poverty_status
