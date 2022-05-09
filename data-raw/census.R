@@ -99,43 +99,24 @@ s1701_poverty_places <-
 
 # SNAP Recipient Households by Race/Ethnicity
 
-s2201_snap_counties <-
-  data.table::fread(
-    "data-raw/ACSST5Y2019.S2201_data_with_overlays_2021-12-16T152331.csv",
-    skip = 1,
-    select = c(
-      "id",
-      "Geographic Area Name",
-      "Estimate!!Households receiving food stamps/SNAP!!Households",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!White alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Black or African American alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!American Indian and Alaska Native alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Asian alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Native Hawaiian and Other Pacific Islander alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Some other race alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Two or more races",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Hispanic or Latino origin (of any race)"
-    )
+s2201_var_ids <-
+  c(
+    "S2201_C03_001",
+    "S2201_C03_025",
+    "S2201_C03_026",
+    "S2201_C03_027",
+    "S2201_C03_028",
+    "S2201_C03_029",
+    "S2201_C03_030",
+    "S2201_C03_031",
+    "S2201_C03_032"
   )
 
+s2201_snap_counties <-
+  get_acs_st(year, state, geography = "county", s2201_var_ids, acs_st_vars_lookup)
+
 s2201_snap_places <-
-  data.table::fread(
-    "data-raw/ACSST5Y2019.S2201_data_with_overlays_2021-05-04T143832.csv",
-    skip = 1,
-    select = c(
-      "id",
-      "Geographic Area Name",
-      "Estimate!!Households receiving food stamps/SNAP!!Households",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!White alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Black or African American alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!American Indian and Alaska Native alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Asian alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Native Hawaiian and Other Pacific Islander alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Some other race alone",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Two or more races",
-      "Estimate!!Households receiving food stamps/SNAP!!Households!!RACE AND HISPANIC OR LATINO ORIGIN OF HOUSEHOLDER!!Hispanic or Latino origin (of any race)"
-    )
-  )
+  get_acs_st(year, state, geography = "place", s2201_var_ids, acs_st_vars_lookup)
 
 rename_cols <- c(
   "Estimate!!Households receiving food stamps/SNAP!!Households",
