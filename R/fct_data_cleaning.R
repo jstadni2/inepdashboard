@@ -184,6 +184,18 @@ rbind_poverty_status <- function(total_pop_df, below_poverty_df, x) {
   out_df
 }
 
+#' Import American Community Survey subject table from Census API
+#'
+#' @param year Numeric value of Census year.
+#' @param state Character value of the state used to subset the subject table data.
+#' @param geography Character value for the geography used to group the data. (\code{"tract"}, \code{"place"}, or \code{"county"}).
+#' @param var_ids Character string or vector of character strings of variable IDs.
+#' @param acs_st_vars_lookup Data frame output of \code{tidycensus::load_variables(year, "acs5/subject")}, used to map \code{var_ids} to their labels.
+#'
+#' @return The data frame of the ACS subject table estimates in wide format.
+#' @export
+#'
+#' @examples
 get_acs_st <- function(year, state, geography, var_ids, acs_st_vars_lookup) {
   var_ids_df <-
     data.frame(
