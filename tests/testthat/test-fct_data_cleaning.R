@@ -108,6 +108,43 @@ test_that ("ff_query", {
 
 # census.R function tests
 
+# Import test data
+
+outputs_c <-
+  c(
+    "poverty_individuals_age_counties1",
+    "poverty_individuals_age_counties2",
+    "poverty_individuals_age_cities1",
+    "poverty_individuals_age_cities2"
+  )
+
+prev_ts <-
+  tail(unique(stringr::str_sub(list.files(
+    testthat::test_path("testdata")
+  ), 1, 19)), n = 1)
+
+# Implement for loop here
+poverty_individuals_age_counties1_prev <-
+  arrow::read_feather(testthat::test_path(
+    "testdata",
+    paste0(prev_ts, "_", outputs_c[1], ".feather")
+  ))
+poverty_individuals_age_counties2_prev <-
+  arrow::read_feather(testthat::test_path(
+    "testdata",
+    paste0(prev_ts, "_", outputs_c[2], ".feather")
+  ))
+poverty_individuals_age_cities1_prev <-
+  arrow::read_feather(testthat::test_path(
+    "testdata",
+    paste0(prev_ts, "_", outputs_c[3], ".feather")
+  ))
+poverty_individuals_age_cities2_prev <-
+  arrow::read_feather(testthat::test_path(
+    "testdata",
+    paste0(prev_ts, "_", outputs_c[4], ".feather")
+  ))
+
 test_that ("clean_census_data", {
   # Import poverty status by age data
   
@@ -245,20 +282,10 @@ test_that ("clean_census_data", {
       values_to,
       ethnicity = FALSE
     )
-  
-  # out_dir <- "./inst/testdata/"
-  out_dir <- "./inst/testdata/"
-
-  outputs_c <-
-   c(
-      "poverty_individuals_age_counties1",
-      "poverty_individuals_age_counties2",
-      "poverty_individuals_age_cities1",
-      "poverty_individuals_age_cities2"
-    )
 
   # Uncomment following lines to save current implementation's outputs
   
+  # out_dir <- testthat::test_path("testdata")
   # ts <- format(Sys.time(), "%Y.%m.%d.%H.%M.%S")
   
   # outputs <-
@@ -272,7 +299,7 @@ test_that ("clean_census_data", {
   # for (i in 1:length(outputs)) {
   #   arrow::write_feather(
   #     outputs[[i]],
-  #     paste0(out_dir, ts, "_", outputs_c[i], ".feather"),
+  #     paste0(out_dir, "/", ts, "_", outputs_c[i], ".feather"),
   #   )
   # }
   
@@ -282,34 +309,6 @@ test_that ("clean_census_data", {
   # https://stackoverflow.com/questions/32328802/where-should-i-put-data-for-automated-tests-with-testthat
   # https://blog.r-hub.io/2020/11/18/testthat-utility-belt/
   
-  prev_ts <-
-    tail(unique(stringr::str_sub(list.files(
-      testthat::test_path("testdata")
-    ), 1, 19)), n = 1)
-  
-  # Implement for loop here
-  poverty_individuals_age_counties1_prev <-
-    arrow::read_feather(testthat::test_path(
-      "testdata",
-      paste0(prev_ts, "_", outputs_c[1], ".feather")
-    ))
-  poverty_individuals_age_counties2_prev <-
-    arrow::read_feather(testthat::test_path(
-      "testdata",
-      paste0(prev_ts, "_", outputs_c[2], ".feather")
-    ))
-  poverty_individuals_age_cities1_prev <-
-    arrow::read_feather(testthat::test_path(
-      "testdata",
-      paste0(prev_ts, "_", outputs_c[3], ".feather")
-    ))
-  poverty_individuals_age_cities2_prev <-
-    arrow::read_feather(testthat::test_path(
-      "testdata",
-      paste0(prev_ts, "_", outputs_c[4], ".feather")
-    ))
-  
-  
   # Compare current outputs to previous outputs
   expect_equal(poverty_individuals_age_counties1, poverty_individuals_age_counties1_prev)
   expect_equal(poverty_individuals_age_counties2, poverty_individuals_age_counties2_prev)
@@ -317,7 +316,29 @@ test_that ("clean_census_data", {
   expect_equal(poverty_individuals_age_cities2, poverty_individuals_age_cities2_prev)
 })
 
-# test rbind_poverty_status
+test_that ("rbind_poverty_status", { 
+  
+  # Using manual operations
+  
+  total_pop_df_c <- poverty_individuals_age_counties1_prev
+  below_poverty_df_c <- poverty_individuals_age_counties2_prev
+  x <- "age"
+  
+  total_pop_df_c$poverty_status <- "Total Population"
+  below_poverty_df_c$poverty_status <- "Below 100% Poverty Level"
+  
+  out_df <- rbind(total_pop_df_c, below_poverty_df_c)
+  out_df[[x]] <- out_df[[x]] %>% stringr::str_to_title()
+  
+  # Using package-defined function
+  
+  poverty_individuals_age_counties <-
+    rbind_poverty_status(poverty_individuals_age_counties1_prev,
+                         poverty_individuals_age_counties2_prev,
+                         "age")
+  
+  expect_equal(out_df, poverty_individuals_age_counties)
+})
 
 # Import most recent outputs from clean_census_data() tests
 
