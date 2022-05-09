@@ -137,7 +137,7 @@ clean_census_data <-
       out_df$geographic_area_name  <-
         gsub("De Pue", "DePue", out_df$geographic_area_name, fixed = TRUE) #still necessary?
       out_df <-
-        out_df[out_df$id != "1600000US1728950", ] #still necessary?
+        out_df[out_df$GEOID != "1728950", ] #still necessary?
       
     }
     
