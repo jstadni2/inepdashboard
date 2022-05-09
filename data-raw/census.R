@@ -92,102 +92,10 @@ snap_ed_eligibility_tracts_sf <- sf::merge(il_tracts_sf, snap_ed_eligibility_tra
 # Community profile data
 
 s1701_poverty_counties <-
-  data.table::fread(
-    "data-raw/ACSST5Y2019.S1701_data_with_overlays_2021-11-08T111346.csv",
-    skip = 1,
-    select = c(
-      "id",
-      "Geographic Area Name",
-      "Estimate!!Total!!Population for whom poverty status is determined",
-      "Estimate!!Total!!Population for whom poverty status is determined!!ALL INDIVIDUALS WITH INCOME BELOW THE FOLLOWING POVERTY RATIOS!!185 percent of poverty level",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!Under 18 years!!Under 5 years",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!Under 18 years!!5 to 17 years",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!18 to 34 years",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!35 to 64 years",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!65 years and over",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!Under 18 years!!Under 5 years",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!Under 18 years!!5 to 17 years",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!18 to 34 years",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!35 to 64 years",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!65 years and over",
-      "Estimate!!Total!!Population for whom poverty status is determined!!SEX!!Male",
-      "Estimate!!Total!!Population for whom poverty status is determined!!SEX!!Female",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!SEX!!Male",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!SEX!!Female",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!White alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Black or African American alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!American Indian and Alaska Native alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Asian alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Native Hawaiian and Other Pacific Islander alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Some other race alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Two or more races",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Hispanic or Latino origin (of any race)",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!White alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Black or African American alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!American Indian and Alaska Native alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Asian alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Native Hawaiian and Other Pacific Islander alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Some other race alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Two or more races",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Hispanic or Latino origin (of any race)"
-    )
-  )
-
-s1701_poverty_counties2 <- tidycensus::get_acs(
-  geography = "county",
-  variables = S1701_var_ids$name,
-  state = state,
-  year = year,
-  output = "wide" # consider long format and refactor clean_census_data()
-) %>%
-  dplyr::select(-dplyr::ends_with("M"))
-
-S1701_Poverty_Places <-
-  S1701_Poverty_Places %>% rename_at(vars(S1701_var_ids$name_e), ~S1701_var_labels)
+  get_acs_st(year, state, geography = "county", s1701_var_ids, acs_st_vars_lookup)
 
 s1701_poverty_places <-
-  data.table::fread(
-    "data-raw/ACSST5Y2019.S1701_data_with_overlays_2021-04-28T154515.csv",
-    skip = 1,
-    select = c(
-      "id",
-      "Geographic Area Name",
-      "Estimate!!Total!!Population for whom poverty status is determined",
-      "Estimate!!Total!!Population for whom poverty status is determined!!ALL INDIVIDUALS WITH INCOME BELOW THE FOLLOWING POVERTY RATIOS!!185 percent of poverty level",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!Under 18 years!!Under 5 years",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!Under 18 years!!5 to 17 years",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!18 to 34 years",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!35 to 64 years",
-      "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!65 years and over",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!Under 18 years!!Under 5 years",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!Under 18 years!!5 to 17 years",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!18 to 34 years",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!35 to 64 years",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!65 years and over",
-      "Estimate!!Total!!Population for whom poverty status is determined!!SEX!!Male",
-      "Estimate!!Total!!Population for whom poverty status is determined!!SEX!!Female",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!SEX!!Male",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!SEX!!Female",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!White alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Black or African American alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!American Indian and Alaska Native alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Asian alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Native Hawaiian and Other Pacific Islander alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Some other race alone",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Two or more races",
-      "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Hispanic or Latino origin (of any race)",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!White alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Black or African American alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!American Indian and Alaska Native alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Asian alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Native Hawaiian and Other Pacific Islander alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Some other race alone",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Two or more races",
-      "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Hispanic or Latino origin (of any race)"
-    )
-  )
+  get_acs_st(year, state, geography = "place", s1701_var_ids, acs_st_vars_lookup)
 
 # SNAP Recipient Households by Race/Ethnicity
 
