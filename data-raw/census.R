@@ -178,37 +178,21 @@ snap_recipient_households_demo_cities <-
 
 # LEP Households by Language
 
-s1602_lep_counties <-
-  data.table::fread(
-    "data-raw/ACSST5Y2019.S1602_data_with_overlays_2021-12-16T145907.csv",
-    skip = 1,
-    select = c(
-      "id",
-      "Geographic Area Name",
-      "Estimate!!Total!!All households",
-      "Estimate!!Limited English-speaking households!!All households",
-      "Estimate!!Limited English-speaking households!!All households!!Households speaking --!!Spanish",
-      "Estimate!!Limited English-speaking households!!All households!!Households speaking --!!Other Indo-European languages",
-      "Estimate!!Limited English-speaking households!!All households!!Households speaking --!!Asian and Pacific Island languages",
-      "Estimate!!Limited English-speaking households!!All households!!Households speaking --!!Other languages"
-    )
+S1602_var_ids <-
+  c(
+    "S1602_C01_001",
+    "S1602_C03_001",
+    "S1602_C03_002",
+    "S1602_C03_003",
+    "S1602_C03_004",
+    "S1602_C03_005"
   )
 
+s1602_lep_counties <-
+  get_acs_st(year, state, geography = "county", S1602_var_ids, acs_st_vars_lookup)
+
 s1602_lep_places <-
-  data.table::fread(
-    "data-raw/ACSST5Y2019.S1602_data_with_overlays_2021-05-05T160010.csv",
-    skip = 1,
-    select = c(
-      "id",
-      "Geographic Area Name",
-      "Estimate!!Total!!All households",
-      "Estimate!!Limited English-speaking households!!All households",
-      "Estimate!!Limited English-speaking households!!All households!!Households speaking --!!Spanish",
-      "Estimate!!Limited English-speaking households!!All households!!Households speaking --!!Other Indo-European languages",
-      "Estimate!!Limited English-speaking households!!All households!!Households speaking --!!Asian and Pacific Island languages",
-      "Estimate!!Limited English-speaking households!!All households!!Households speaking --!!Other languages"
-    )
-  )
+  get_acs_st(year, state, geography = "place", S1602_var_ids, acs_st_vars_lookup)
 
 rename_cols <- c(
   "Estimate!!Total!!All households",
