@@ -640,3 +640,35 @@ poverty_individuals_demo_cities <-
 
 # usethis::use_data(poverty_individuals_demo_counties, overwrite = TRUE)
 # usethis::use_data(poverty_individuals_demo_cities, overwrite = TRUE)
+
+# SNAP-Ed Eligibility
+
+snap_ed_eligibility_counties <-
+  snap_ed_eligibility_tracts[, c(
+    "county",
+    "state",
+    "total_population",
+    "individuals_income_below_185_percent_poverty_level"
+  )] %>%
+  dplyr::group_by(county, state) %>%
+  dplyr::summarise(
+    total_population = sum(total_population),
+    individuals_income_below_185_percent_poverty_level = sum(individuals_income_below_185_percent_poverty_level)
+  ) %>%
+  dplyr::ungroup()
+
+# calculate percent here instead of in reactive?
+
+# usethis::use_data(snap_ed_eligibility_counties, overwrite = TRUE)
+
+snap_ed_eligibility_cities <-
+  unique(poverty_individuals_age_cities[, c("GEOID", "geographic_area_name", "total_population")]) %>%
+  dplyr::left_join(s1701_poverty_places[, c(
+    "GEOID",
+    "Estimate!!Total!!Population for whom poverty status is determined!!ALL INDIVIDUALS WITH INCOME BELOW THE FOLLOWING POVERTY RATIOS!!185 percent of poverty level"
+  )], by = "GEOID") %>%
+  dplyr::rename(individuals_income_below_185_percent_poverty_level = "Estimate!!Total!!Population for whom poverty status is determined!!ALL INDIVIDUALS WITH INCOME BELOW THE FOLLOWING POVERTY RATIOS!!185 percent of poverty level")
+
+# calculate percent here instead of in reactive?
+
+# usethis::use_data(snap_ed_eligibility_cities, overwrite = TRUE)
