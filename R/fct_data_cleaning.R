@@ -111,7 +111,7 @@ clean_census_data <-
       out_df %>% dplyr::rename_at(dplyr::all_of(rename_cols), ~ rename_values)
     
     out_df <-
-      out_df %>% dplyr::rename(geographic_area_name = "Geographic Area Name")
+      out_df %>% dplyr::rename(geographic_area_name = "NAME")
     
     if (geography == "counties") {
       
