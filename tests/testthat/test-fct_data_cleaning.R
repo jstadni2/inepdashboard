@@ -106,13 +106,220 @@ test_that ("ff_query", {
   expect_equal(q1, q2)
 })
 
-# test ff_import?
-
 # census.R function tests
 
-# test clean_census_data by comparing current output to previous outputs
+test_that ("clean_census_data", {
+  # Import poverty status by age data
+  
+  year <- 2020
+  state <- "IL"
+  
+  s1701_var_ids <- c(
+    "S1701_C01_001",
+    "S1701_C01_041",
+    "S1701_C01_003",
+    "S1701_C01_004",
+    "S1701_C01_007",
+    "S1701_C01_008",
+    "S1701_C01_010",
+    "S1701_C02_003",
+    "S1701_C02_004",
+    "S1701_C02_007",
+    "S1701_C02_008",
+    "S1701_C02_010"
+  )
+  
+  acs_st_vars_lookup <-
+    tidycensus::load_variables(year, "acs5/subject", cache = TRUE)
+  
+  s1701_poverty_counties <-
+    get_acs_st(year, state, geography = "county", s1701_var_ids, acs_st_vars_lookup)
+  
+  s1701_poverty_places <-
+    get_acs_st(year, state, geography = "place", s1701_var_ids, acs_st_vars_lookup)
+  
+  # Call clean_census_data() on poverty status by age data
+  
+  cols <- c(
+    "GEOID",
+    "NAME",
+    "Estimate!!Total!!Population for whom poverty status is determined",
+    "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!Under 18 years!!Under 5 years",
+    "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!Under 18 years!!5 to 17 years",
+    "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!18 to 34 years",
+    "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!35 to 64 years",
+    "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!65 years and over"
+  )
+  
+  census_data <- s1701_poverty_counties %>% dplyr::select(dplyr::all_of(cols))
+  
+  rename_cols <- tail(cols, 6)
+  
+  rename_values <- c(
+    "total_population",
+    "total_population_age_under_5_years",
+    "total_population_age_5_to_17_years",
+    "total_population_age_18_to_34_years",
+    "total_population_age_35_to_64_years",
+    "total_population_age_65_years_and_over"
+  )	
+  
+  pivot_col <- "age"
+  pivot_cols_prefix <- "total_population_age_"
+  values_to <- "individuals"
+  
+  poverty_individuals_age_counties1 <-
+    clean_census_data(
+      census_data,
+      rename_cols,
+      rename_values,
+      geography = "counties",
+      pivot_cols_prefix,
+      pivot_col,
+      values_to,
+      ethnicity = FALSE
+    )
+  
+  census_data <- s1701_poverty_places %>% dplyr::select(dplyr::all_of(cols))
+  
+  poverty_individuals_age_cities1 <-
+    clean_census_data(
+      census_data,
+      rename_cols,
+      rename_values,
+      geography = "places",
+      pivot_cols_prefix,
+      pivot_col,
+      values_to,
+      ethnicity = FALSE
+    )
+  
+  cols <- c(
+    "GEOID",
+    "NAME",
+    "Estimate!!Total!!Population for whom poverty status is determined",
+    "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!Under 18 years!!Under 5 years",
+    "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!Under 18 years!!5 to 17 years",
+    "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!18 to 34 years",
+    "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!18 to 64 years!!35 to 64 years",
+    "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!65 years and over"
+  )
+  
+  census_data <- s1701_poverty_counties %>% dplyr::select(dplyr::all_of(cols))
+  
+  rename_cols <- tail(cols, 6)
+  
+  rename_values <- c(
+    "total_population",
+    "below_poverty_level_under_5_years",
+    "below_poverty_level_5_to_17_years",
+    "below_poverty_level_18_to_34_years",
+    "below_poverty_level_35_to_64_years",
+    "below_poverty_level_65_years_and_over"
+  )	
+  
+  pivot_cols_prefix <- "below_poverty_level_"
+  
+  poverty_individuals_age_counties2 <-
+    clean_census_data(
+      census_data,
+      rename_cols,
+      rename_values,
+      geography = "counties",
+      pivot_cols_prefix,
+      pivot_col,
+      values_to,
+      ethnicity = FALSE
+    )
+  
+  census_data <- s1701_poverty_places %>% dplyr::select(dplyr::all_of(cols))
+  
+  poverty_individuals_age_cities2 <-
+    clean_census_data(
+      census_data,
+      rename_cols,
+      rename_values,
+      geography = "places",
+      pivot_cols_prefix,
+      pivot_col,
+      values_to,
+      ethnicity = FALSE
+    )
+  
+  # out_dir <- "./inst/testdata/"
+  out_dir <- "./inst/testdata/"
+
+  outputs_c <-
+   c(
+      "poverty_individuals_age_counties1",
+      "poverty_individuals_age_counties2",
+      "poverty_individuals_age_cities1",
+      "poverty_individuals_age_cities2"
+    )
+
+  # Uncomment following lines to save current implementation's outputs
+  
+  # ts <- format(Sys.time(), "%Y.%m.%d.%H.%M.%S")
+  
+  # outputs <-
+  #   list(
+  #     poverty_individuals_age_counties1,
+  #     poverty_individuals_age_counties2,
+  #     poverty_individuals_age_cities1,
+  #     poverty_individuals_age_cities2
+  #   )
+  
+  # for (i in 1:length(outputs)) {
+  #   arrow::write_feather(
+  #     outputs[[i]],
+  #     paste0(out_dir, ts, "_", outputs_c[i], ".feather"),
+  #   )
+  # }
+  
+  # Import previous implementation's outputs
+  
+  # Reference for writing/reading files in tests:
+  # https://stackoverflow.com/questions/32328802/where-should-i-put-data-for-automated-tests-with-testthat
+  # https://blog.r-hub.io/2020/11/18/testthat-utility-belt/
+  
+  prev_ts <-
+    tail(unique(stringr::str_sub(list.files(
+      testthat::test_path("testdata")
+    ), 1, 19)), n = 1)
+  
+  # Implement for loop here
+  poverty_individuals_age_counties1_prev <-
+    arrow::read_feather(testthat::test_path(
+      "testdata",
+      paste0(prev_ts, "_", outputs_c[1], ".feather")
+    ))
+  poverty_individuals_age_counties2_prev <-
+    arrow::read_feather(testthat::test_path(
+      "testdata",
+      paste0(prev_ts, "_", outputs_c[2], ".feather")
+    ))
+  poverty_individuals_age_cities1_prev <-
+    arrow::read_feather(testthat::test_path(
+      "testdata",
+      paste0(prev_ts, "_", outputs_c[3], ".feather")
+    ))
+  poverty_individuals_age_cities2_prev <-
+    arrow::read_feather(testthat::test_path(
+      "testdata",
+      paste0(prev_ts, "_", outputs_c[4], ".feather")
+    ))
+  
+  
+  # Compare current outputs to previous outputs
+  expect_equal(poverty_individuals_age_counties1, poverty_individuals_age_counties1_prev)
+  expect_equal(poverty_individuals_age_counties2, poverty_individuals_age_counties2_prev)
+  expect_equal(poverty_individuals_age_cities1, poverty_individuals_age_cities1_prev)
+  expect_equal(poverty_individuals_age_cities2, poverty_individuals_age_cities2_prev)
+})
 
 # test rbind_poverty_status
+
+# Import most recent outputs from clean_census_data() tests
 
 test_that ("get_acs_st", {
   year <- 2020
