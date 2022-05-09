@@ -91,12 +91,6 @@ snap_ed_eligibility_tracts_sf <- sf::merge(il_tracts_sf, snap_ed_eligibility_tra
 
 # Community profile data
 
-s1701_poverty_counties <-
-  get_acs_st(year, state, geography = "county", s1701_var_ids, acs_st_vars_lookup)
-
-s1701_poverty_places <-
-  get_acs_st(year, state, geography = "place", s1701_var_ids, acs_st_vars_lookup)
-
 # SNAP Recipient Households by Race/Ethnicity
 
 s2201_var_ids <-
@@ -162,6 +156,8 @@ snap_recipient_households_demo_counties <-
     total_col
   )
 
+# usethis::use_data(snap_recipient_households_demo_counties, overwrite = TRUE)
+
 snap_recipient_households_demo_cities <-
   clean_census_data(
     s2201_snap_places,
@@ -175,6 +171,8 @@ snap_recipient_households_demo_cities <-
     ethnic_col,
     total_col
   )
+
+# usethis::use_data(snap_recipient_households_demo_cities, overwrite = TRUE)
 
 # LEP Households by Language
 
@@ -228,6 +226,8 @@ lep_households_counties <-
     ethnicity = FALSE
   )
 
+# usethis::use_data(lep_households_counties, overwrite = TRUE)
+
 lep_households_cities <-
   clean_census_data(
     s1602_lep_places,
@@ -240,11 +240,19 @@ lep_households_cities <-
     ethnicity = FALSE
   )
 
-#Poverty Status of Individuals by Age
+# usethis::use_data(lep_households_cities, overwrite = TRUE)
+
+s1701_poverty_counties <-
+  get_acs_st(year, state, geography = "county", s1701_var_ids, acs_st_vars_lookup)
+
+s1701_poverty_places <-
+  get_acs_st(year, state, geography = "place", s1701_var_ids, acs_st_vars_lookup)
+
+# Poverty Status of Individuals by Age
 
 cols <- c(
-  "id",
-  "Geographic Area Name",
+  "GEOID",
+  "NAME",
   "Estimate!!Total!!Population for whom poverty status is determined",
   "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!Under 18 years!!Under 5 years",
   "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!Under 18 years!!5 to 17 years",
@@ -253,7 +261,7 @@ cols <- c(
   "Estimate!!Total!!Population for whom poverty status is determined!!AGE!!65 years and over"
 )
 
-census_data <- s1701_poverty_counties[, ..cols]
+census_data <- s1701_poverty_counties %>% dplyr::select(cols)
 
 rename_cols <- tail(cols, 6)
 
@@ -282,7 +290,7 @@ poverty_individuals_age_counties1 <-
     ethnicity = FALSE
   )
 
-census_data <- s1701_poverty_places[, ..cols]
+census_data <- s1701_poverty_places %>% dplyr::select(cols)
 
 poverty_individuals_age_cities1 <-
   clean_census_data(
@@ -297,8 +305,8 @@ poverty_individuals_age_cities1 <-
   )
 
 cols <- c(
-  "id",
-  "Geographic Area Name",
+  "GEOID",
+  "NAME",
   "Estimate!!Total!!Population for whom poverty status is determined",
   "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!Under 18 years!!Under 5 years",
   "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!Under 18 years!!5 to 17 years",
@@ -307,7 +315,7 @@ cols <- c(
   "Estimate!!Below poverty level!!Population for whom poverty status is determined!!AGE!!65 years and over"
 )
 
-census_data <- s1701_poverty_counties[, ..cols]
+census_data <- s1701_poverty_counties %>% dplyr::select(cols)
 
 rename_cols <- tail(cols, 6)
 
@@ -334,7 +342,7 @@ poverty_individuals_age_counties2 <-
     ethnicity = FALSE
   )
 
-census_data <- s1701_poverty_places[, ..cols]
+census_data <- s1701_poverty_places %>% dplyr::select(cols)
 
 poverty_individuals_age_cities2 <-
   clean_census_data(
@@ -370,17 +378,20 @@ poverty_individuals_age_cities$age <-
     c("Under 5", "5 To 17", "18 To 34", "35 To 64", "65 And Over")
   )
 
-#Poverty Status of Individuals by Sex
+# usethis::use_data(poverty_individuals_age_counties, overwrite = TRUE)
+# usethis::use_data(poverty_individuals_age_cities, overwrite = TRUE)
+
+# Poverty Status of Individuals by Sex
 
 cols <- c(
-  "id",
-  "Geographic Area Name",
+  "GEOID",
+  "NAME",
   "Estimate!!Total!!Population for whom poverty status is determined",
   "Estimate!!Total!!Population for whom poverty status is determined!!SEX!!Male",
   "Estimate!!Total!!Population for whom poverty status is determined!!SEX!!Female"
 )
 
-census_data <- s1701_poverty_counties[, ..cols]
+census_data <- s1701_poverty_counties %>% dplyr::select(cols)
 
 rename_cols <- tail(cols, 3)
 
@@ -406,7 +417,7 @@ poverty_individuals_sex_counties1 <-
     ethnicity = FALSE
   )
 
-census_data <- s1701_poverty_places[, ..cols]
+census_data <- s1701_poverty_places %>% dplyr::select(cols)
 
 poverty_individuals_sex_cities1 <-
   clean_census_data(
@@ -421,14 +432,14 @@ poverty_individuals_sex_cities1 <-
   )
 
 cols <- c(
-  "id",
-  "Geographic Area Name",
+  "GEOID",
+  "NAME",
   "Estimate!!Total!!Population for whom poverty status is determined",
   "Estimate!!Below poverty level!!Population for whom poverty status is determined!!SEX!!Male",
   "Estimate!!Below poverty level!!Population for whom poverty status is determined!!SEX!!Female"
 )
 
-census_data <- s1701_poverty_counties[, ..cols]
+census_data <- s1701_poverty_counties %>% dplyr::select(cols)
 
 rename_cols <- tail(cols, 3)
 
@@ -452,7 +463,7 @@ poverty_individuals_sex_counties2 <-
     ethnicity = FALSE
   )
 
-census_data <- s1701_poverty_places[, ..cols]
+census_data <- s1701_poverty_places %>% dplyr::select(cols)
 
 poverty_individuals_sex_cities2 <-
   clean_census_data(
@@ -475,11 +486,14 @@ poverty_individuals_sex_cities <-
                       poverty_individuals_sex_cities2,
                       "sex")
 
-#Poverty Status of Individuals by Race/Ethnicity
+# usethis::use_data(poverty_individuals_sex_counties, overwrite = TRUE)
+# usethis::use_data(poverty_individuals_sex_cities, overwrite = TRUE)
+
+# Poverty Status of Individuals by Race/Ethnicity
 
 cols <- c(
-  "id",
-  "Geographic Area Name",
+  "GEOID",
+  "NAME",
   "Estimate!!Total!!Population for whom poverty status is determined",
   "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!White alone",
   "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Black or African American alone",
@@ -491,7 +505,7 @@ cols <- c(
   "Estimate!!Total!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Hispanic or Latino origin (of any race)"
 )
 
-census_data <- s1701_poverty_counties[, ..cols]
+census_data <- s1701_poverty_counties %>% dplyr::select(cols)
 
 rename_cols <- tail(cols, 9)
 
@@ -527,7 +541,7 @@ poverty_individuals_demo_counties1 <-
     total_col
   )
 
-census_data <- s1701_poverty_places[, ..cols]
+census_data <- s1701_poverty_places %>% dplyr::select(cols)
 
 poverty_individuals_demo_cities1 <-
   clean_census_data(
@@ -544,8 +558,8 @@ poverty_individuals_demo_cities1 <-
   )
 
 cols <- c(
-  "id",
-  "Geographic Area Name",
+  "GEOID",
+  "NAME",
   "Estimate!!Total!!Population for whom poverty status is determined",
   "Estimate!!Below poverty level!!Population for whom poverty status is determined",
   "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!White alone",
@@ -558,7 +572,7 @@ cols <- c(
   "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Hispanic or Latino origin (of any race)"
 )
 
-census_data <- s1701_poverty_counties[, ..cols]
+census_data <- s1701_poverty_counties %>% dplyr::select(cols)
 
 rename_cols <- tail(cols, 10)
 
@@ -593,7 +607,7 @@ poverty_individuals_demo_counties2 <-
     total_col
   )
 
-census_data <- s1701_poverty_places[, ..cols]
+census_data <- s1701_poverty_places %>% dplyr::select(cols)
 
 poverty_individuals_demo_cities2 <-
   clean_census_data(
@@ -610,9 +624,9 @@ poverty_individuals_demo_cities2 <-
   )
 
 poverty_individuals_demo_counties2 <-
-  poverty_individuals_demo_counties2 %>% select(-total_population_below_poverty_level)
+  poverty_individuals_demo_counties2 %>% dplyr::select(-total_population_below_poverty_level)
 poverty_individuals_demo_cities2 <-
-  poverty_individuals_demo_cities2 %>% select(-total_population_below_poverty_level)
+  poverty_individuals_demo_cities2 %>% dplyr::select(-total_population_below_poverty_level)
 
 poverty_individuals_demo_counties <-
   rbind_poverty_status(poverty_individuals_demo_counties1,
@@ -624,4 +638,5 @@ poverty_individuals_demo_cities <-
                       "demo")
 
 
-# usethis::use_data(census, overwrite = TRUE)
+# usethis::use_data(poverty_individuals_demo_counties, overwrite = TRUE)
+# usethis::use_data(poverty_individuals_demo_cities, overwrite = TRUE)
