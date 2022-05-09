@@ -8,68 +8,44 @@ state <- "IL"
 acs_st_vars_lookup <-
   tidycensus::load_variables(year, "acs5/subject", cache = TRUE)
 
-# Create wrapper function for following operations:
-
-S1701_var_ids <-
-  data.frame(
-    name_e =
-      c(
-        "S1701_C01_001E",
-        "S1701_C01_041E",
-        "S1701_C01_003E",
-        "S1701_C01_004E",
-        "S1701_C01_007E",
-        "S1701_C01_008E",
-        "S1701_C01_010E",
-        "S1701_C02_003E",
-        "S1701_C02_004E",
-        "S1701_C02_007E",
-        "S1701_C02_008E",
-        "S1701_C02_010E",
-        "S1701_C01_011E",
-        "S1701_C01_012E",
-        "S1701_C02_011E",
-        "S1701_C02_012E",
-        "S1701_C01_013E",
-        "S1701_C01_014E",
-        "S1701_C01_015E",
-        "S1701_C01_016E",
-        "S1701_C01_017E",
-        "S1701_C01_018E",
-        "S1701_C01_019E",
-        "S1701_C01_020E",
-        "S1701_C02_001E",
-        "S1701_C02_013E",
-        "S1701_C02_014E",
-        "S1701_C02_015E",
-        "S1701_C02_016E",
-        "S1701_C02_017E",
-        "S1701_C02_018E",
-        "S1701_C02_019E",
-        "S1701_C02_020E"
-      )
-  )
-
-S1701_var_ids$name <-
-  stringr::str_sub(S1701_var_ids$name, 1, end = -2)
-
-S1701_var_labels <-
-  dplyr::left_join(S1701_var_ids, acs_st_vars_lookup , by = "name")$label
-
-s1701_poverty_tracts <- tidycensus::get_acs(
-  geography = "tract",
-  variables = S1701_var_ids$name,
-  state = state,
-  year = year,
-  output = "wide" # consider long format and refactor clean_census_data()
-) %>%
-  dplyr::select(-dplyr::ends_with("M"))
+s1701_var_ids <- c(
+  "S1701_C01_001",
+  "S1701_C01_041",
+  "S1701_C01_003",
+  "S1701_C01_004",
+  "S1701_C01_007",
+  "S1701_C01_008",
+  "S1701_C01_010",
+  "S1701_C02_003",
+  "S1701_C02_004",
+  "S1701_C02_007",
+  "S1701_C02_008",
+  "S1701_C02_010",
+  "S1701_C01_011",
+  "S1701_C01_012",
+  "S1701_C02_011",
+  "S1701_C02_012",
+  "S1701_C01_013",
+  "S1701_C01_014",
+  "S1701_C01_015",
+  "S1701_C01_016",
+  "S1701_C01_017",
+  "S1701_C01_018",
+  "S1701_C01_019",
+  "S1701_C01_020",
+  "S1701_C02_001",
+  "S1701_C02_013",
+  "S1701_C02_014",
+  "S1701_C02_015",
+  "S1701_C02_016",
+  "S1701_C02_017",
+  "S1701_C02_018",
+  "S1701_C02_019",
+  "S1701_C02_020"
+)
 
 s1701_poverty_tracts <-
-  s1701_poverty_tracts %>%
-  dplyr::rename_at(dplyr::vars(S1701_var_ids$name_e), ~ S1701_var_labels)
-
-# End wrapper here
+  get_acs_st(year, state, geography = "tract", s1701_var_ids, acs_st_vars_lookup)
 
 s2_available <- !inherits(try(sf::sf_use_s2(TRUE), silent = TRUE), "try-error")
 

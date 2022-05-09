@@ -117,9 +117,7 @@ test_that ("ff_query", {
 test_that ("get_acs_st", {
   year <- 2020
   state <- "IL"
-  geography = "tract"
-  
-  # remove E from var_ids, add in wrapper function
+  geography <- "tract"
   
   s1701_var_ids <- c(
     "S1701_C01_001",
