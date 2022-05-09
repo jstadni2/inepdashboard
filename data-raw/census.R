@@ -8,6 +8,8 @@ state <- "IL"
 acs_st_vars_lookup <-
   tidycensus::load_variables(year, "acs5/subject", cache = TRUE)
 
+# Create wrapper function for following operations:
+
 S1701_var_ids <-
   data.frame(
     name_e =
@@ -67,6 +69,8 @@ s1701_poverty_tracts <-
   s1701_poverty_tracts %>%
   dplyr::rename_at(dplyr::vars(S1701_var_ids$name_e), ~ S1701_var_labels)
 
+# End wrapper here
+
 s2_available <- !inherits(try(sf::sf_use_s2(TRUE), silent = TRUE), "try-error")
 
 il_tracts_sf <- tigris::tracts(state = state, year = year)
@@ -105,7 +109,7 @@ snap_ed_eligibility_tracts <-
   )
 
 # was named il_tracts_sf_merged, change in modules/app.R
-snap_ed_eligibility_tracts_sf <- sf::merge(il_tracts_sf, snap_ed_eligibility_tracts, by = "GEOID") #missing two tracts?
+snap_ed_eligibility_tracts_sf <- sf::merge(il_tracts_sf, snap_ed_eligibility_tracts, by = "GEOID")
 
 # usethis::use_data(snap_ed_eligibility_tracts_sf, overwrite = TRUE)
 
@@ -153,6 +157,18 @@ s1701_poverty_counties <-
       "Estimate!!Below poverty level!!Population for whom poverty status is determined!!RACE AND HISPANIC OR LATINO ORIGIN!!Hispanic or Latino origin (of any race)"
     )
   )
+
+s1701_poverty_counties2 <- tidycensus::get_acs(
+  geography = "county",
+  variables = S1701_var_ids$name,
+  state = state,
+  year = year,
+  output = "wide" # consider long format and refactor clean_census_data()
+) %>%
+  dplyr::select(-dplyr::ends_with("M"))
+
+S1701_Poverty_Places <-
+  S1701_Poverty_Places %>% rename_at(vars(S1701_var_ids$name_e), ~S1701_var_labels)
 
 s1701_poverty_places <-
   data.table::fread(

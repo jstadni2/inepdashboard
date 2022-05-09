@@ -113,3 +113,81 @@ test_that ("ff_query", {
 # test clean_census_data by comparing current output to previous outputs
 
 # test rbind_poverty_status
+
+test_that ("get_acs_st", {
+  year <- 2020
+  state <- "IL"
+  geography = "tract"
+  
+  # remove E from var_ids, add in wrapper function
+  
+  s1701_var_ids <- c(
+    "S1701_C01_001",
+    "S1701_C01_041",
+    "S1701_C01_003",
+    "S1701_C01_004",
+    "S1701_C01_007",
+    "S1701_C01_008",
+    "S1701_C01_010",
+    "S1701_C02_003",
+    "S1701_C02_004",
+    "S1701_C02_007",
+    "S1701_C02_008",
+    "S1701_C02_010",
+    "S1701_C01_011",
+    "S1701_C01_012",
+    "S1701_C02_011",
+    "S1701_C02_012",
+    "S1701_C01_013",
+    "S1701_C01_014",
+    "S1701_C01_015",
+    "S1701_C01_016",
+    "S1701_C01_017",
+    "S1701_C01_018",
+    "S1701_C01_019",
+    "S1701_C01_020",
+    "S1701_C02_001",
+    "S1701_C02_013",
+    "S1701_C02_014",
+    "S1701_C02_015",
+    "S1701_C02_016",
+    "S1701_C02_017",
+    "S1701_C02_018",
+    "S1701_C02_019",
+    "S1701_C02_020"
+  )
+  
+  acs_st_vars_lookup <-
+    tidycensus::load_variables(year, "acs5/subject", cache = TRUE)
+  
+  # Using manual operations
+  
+  s1701_var_ids_df <-
+    data.frame(
+      name = s1701_var_ids,
+      name_e = paste0(s1701_var_ids, "E")
+    )
+  
+  s1701_var_labels <-
+    dplyr::left_join(s1701_var_ids_df, acs_st_vars_lookup , by = "name")$label
+  
+  s1701_poverty_tracts1 <-  suppressMessages(tidycensus::get_acs(
+    geography,
+    variables = s1701_var_ids_df$name,
+    state = state,
+    year = year,
+    output = "wide" 
+  )) %>%
+    dplyr::select(-dplyr::ends_with("M"))
+  
+  s1701_poverty_tracts1 <-
+    s1701_poverty_tracts1 %>%
+    dplyr::rename_at(dplyr::vars(s1701_var_ids_df$name_e), ~ s1701_var_labels)
+  
+  # Using package-defined function
+  
+  s1701_poverty_tracts2 <-get_acs_st(year, state, geography, s1701_var_ids, acs_st_vars_lookup)
+  
+  
+  expect_equal(s1701_poverty_tracts1, s1701_poverty_tracts2)
+})

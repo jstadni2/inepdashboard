@@ -183,6 +183,31 @@ rbind_poverty_status <- function(total_pop_df, below_poverty_df, x) {
   out_df[[x]] <- out_df[[x]] %>% stringr::str_to_title()
   out_df
 }
+
+get_acs_st <- function(year, state, geography, var_ids, acs_st_vars_lookup) {
+  var_ids_df <-
+    data.frame(
+      name = var_ids,
+      name_e = paste0(var_ids, "E")
+    )
+  
+  var_labels <-
+    dplyr::left_join(var_ids_df, acs_st_vars_lookup , by = "name")$label
+  
+ acs_st_df <-  suppressMessages(tidycensus::get_acs(
+    geography = geography,
+    variables = var_ids_df$name,
+    state = state,
+    year = year,
+    output = "wide" # consider long format and refactor clean_census_data()
+  )) %>%
+    dplyr::select(-dplyr::ends_with("M"))
+  
+  acs_st_df <-
+    acs_st_df %>%
+    dplyr::rename_at(dplyr::vars(var_ids_df$name_e), ~ var_labels)
+  acs_st_df
+}
  
 # map module functions
 
