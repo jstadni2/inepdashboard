@@ -1,16 +1,14 @@
 ## code to prepare `community_sites` dataset goes here
 
-# Scrape data from DHS office locator (https://www.dhs.state.il.us/page.aspx?module=12)
+# Check if Selenium docker container is running
+# If not, start Selenium container
+# https://stat.ethz.ch/R-manual/R-devel/library/base/html/system.html
+# If fails, print directions to install Selenium image
 
-# Can't get these to work
+# In terminal: docker run -d -p 4445:4444 selenium/standalone-chrome
+# In terminal: docker run -d -p 4445:4444 selenium/standalone-firefox
 
-# ## Using docker
-
-# # In terminal: docker run -d -p 4445:4444 selenium/standalone-chrome
-# # In terminal: docker run -d -p 4445:4444 selenium/standalone-firefox
-#
-
-# Create firefox pofile
+# Create firefox pofile (below doesn't work)
 
 # fprof <- RSelenium::makeFirefoxProfile(list(browser.download.dir = "D:/temp"))
 # fprof.setAcceptUntrustedCertificates(TRUE)
@@ -21,79 +19,36 @@ remDr <-  RSelenium::remoteDriver(
   browserName = "chrome"
 )
 remDr$open()
-# 
-# ## Using rsDriver() (https://docs.ropensci.org/RSelenium/articles/basics.html)
-# 
-# rD <- RSelenium::rsDriver(verbose = FALSE)
-# 
-# ## Using Chrome (version 101 installed, 102 required)
-# 
-# rD <- RSelenium::rsDriver(browser = "chrome",
-#                           port = 4545L,
-#                           verbose = F)
 
-# Using local system
+# Scrape data from DHS office locator (https://www.dhs.state.il.us/page.aspx?module=12)
 
-# rD <- RSelenium::rsDriver(browser = "firefox",
-#                           port = 4545L,
-#                           verbose = F)
-# 
-# remDr <- rD[["client"]]
-# 
-# remDr$open()
+wic_sites <- scrape_dhs_sites(remDr, "WIC")
 
-remDr$navigate("https://www.dhs.state.il.us/page.aspx?module=12&officetype=&county")
+fcrc_sites <- scrape_dhs_sites(remDr, "FCRC")
 
-remDr$findElement(using = "css selector",
-                  "#SearchOffice_OfficeTypeDropDownList > option:nth-child(20)")$clickElement()
+# remDr$close()
 
+# ISBE Eligible Schools
+# https://www.isbe.net/Pages/Nutrition-Data-Analytics-Maps.aspx
 
+# IL Food Banks: Homeless Shelters
+# http://www.illinoisfoodbanks.org/sites.asp
+# Filter By: Type
+# Type: Homeless Shelter
+# Display Type: List
 
-# Select Office Type - WIC
-remDr$findElement(using = 'xpath', "/html/body/div[2]/div[2]/form/div[3]/div[2]/div[1]/select/option[20]")$clickElement()
-# Click "Find Offices"
-remDr$findElement(using = 'xpath', "//*[@id='SearchOffice_FindOfficesButton']")$clickElement()
+# rbind and geocode wic_sites, fcrc_sites, eligible_schools, homeless_shelters
 
-Sys.sleep(5)
+# Head Start Centers
+# https://eclkc.ohs.acf.hhs.gov/center-locator?latitude=40.633&longitude=-89.399&state=IL
 
-# search_results <- remDr$findElements("id", "SearchResults")
-search_results <- remDr$findElement(using = 'xpath', "//*[@id='OfficeList']")
+# Federally Qualified Health Centers
+# https://data.hrsa.gov/geo
 
-html <- search_results$getElementAttribute('innerHTML')[[1]]
+# rbind all sites into community_sites
+# reference
+# "C:\Users\jstadni2\Box\FCS Data Analyst\Community Networks Dashboard\Community Networks Choropleth Map\Eligible Sites Data Cleaning.R"
+# or 
+# "C:\Users\jstadni2\Box\FCS Data Analyst\SNAP-Ed Sites List\Eligible Sites Data Cleaning.R"
 
-# Close the current window
-remDr$close()
-
-# Close all browser windows and ends the WebDriver session
-remDr$quit()
-
-# html <- remDr$findElement(using = 'xpath', "/html/body/pre/span[808]")$getPageSource()[[1]]
-# 
-# html <- remDr$getPageSource()[[1]]
-
-nodes <-
-  rvest::html_nodes(x = rvest::read_html(html), css = "li")
-
-dhs_sites <- data.frame(
-  site_name = nodes %>%
-    rvest::html_element("h3") %>%
-    rvest::html_text2(),
-  full_address = nodes %>%
-    rvest::html_element(css = ".OfficeAddress") %>%
-    rvest::html_text2()
-)
-
-dhs_sites <-
-  dhs_sites %>% tidyr::separate("full_address", c("address", "city_state_zip"), sep = "\n") %>%
-  tidyr::separate("city_state_zip", c("site_city", "state_zip"), sep = ", ") %>%
-  tidyr::separate("state_zip", c("site_state", "site_zip"), sep = " ")
-
-
-
-
-# parse address
-
-dhs_wic_sites <- rvest::read_html(html) %>% html_element("h3") %>% 
-  html_text3()
-
-usethis::use_data(community_sites, overwrite = TRUE)
+# usethis::use_data(community_sites, overwrite = TRUE)

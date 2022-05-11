@@ -421,15 +421,10 @@ test_that ("get_acs_st", {
 # community_sites.R function tests
 
 test_that ("scrape_dhs_sites", {
-  # Open Remote Driver
+  # Check if Selenium container is running
+  # If not, start Selenium container
   
-  # rD <- RSelenium::rsDriver(browser = "firefox",
-  #                           port = 4545L,
-  #                           verbose = F)
-  # 
-  # remDr <- rD[["client"]]
-  # 
-  # remDr$open()
+  # Open Remote Driver
   
   remDr <-
     RSelenium::remoteDriver(remoteServerAddr = "192.168.1.5",
@@ -452,8 +447,6 @@ test_that ("scrape_dhs_sites", {
   search_results <- remDr$findElement(using = 'xpath', "//*[@id='OfficeList']")
   
   html <- search_results$getElementAttribute('innerHTML')[[1]]
-  
-  # remDr$close()
   
   nodes <-
     rvest::html_nodes(x = rvest::read_html(html), css = "li")

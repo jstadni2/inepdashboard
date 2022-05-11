@@ -344,7 +344,9 @@ scrape_dhs_sites <- function(remDr, office_type) {
   search_results <- remDr$findElement(using = "css selector", "#OfficeList")
   html <- search_results$getElementAttribute('innerHTML')[[1]]
   
-  remDr$close()
+  # Closing the session or window causes errors on subsequent calls to remDr or scrape_dhs_sites()
+  # remDr$close()
+  # remDr$closeWindow()
   
   nodes <-
     rvest::html_nodes(x = rvest::read_html(html), css = "li")
