@@ -417,3 +417,65 @@ test_that ("get_acs_st", {
   
   expect_equal(s1701_poverty_tracts1, s1701_poverty_tracts2)
 })
+
+# community_sites.R function tests
+
+test_that ("scrape_dhs_sites", {
+  # Open Remote Driver
+  
+  # rD <- RSelenium::rsDriver(browser = "firefox",
+  #                           port = 4545L,
+  #                           verbose = F)
+  # 
+  # remDr <- rD[["client"]]
+  # 
+  # remDr$open()
+  
+  remDr <-  RSelenium::remoteDriver(
+    remoteServerAddr = "192.168.1.5",
+    port = 4445L,
+    browserName = "chrome"
+  )
+  remDr$open()
+  
+  # Using manual operations
+  
+  remDr$navigate("https://www.dhs.state.il.us/page.aspx?module=12&officetype=&county")
+  
+  # Select Office Type - WIC
+  remDr$findElement(using = 'xpath', "/html/body/div[2]/div[2]/form/div[3]/div[2]/div[1]/select/option[20]")$clickElement()
+  # Click "Find Offices"
+  remDr$findElement(using = 'xpath', "//*[@id='SearchOffice_FindOfficesButton']")$clickElement()
+  
+  Sys.sleep(2)
+  
+  # search_results <- remDr$findElements("id", "SearchResults")
+  search_results <- remDr$findElement(using = 'xpath', "//*[@id='OfficeList']")
+  
+  html <- search_results$getElementAttribute('innerHTML')[[1]]
+  
+  remDr$close()
+  
+  nodes <-
+    rvest::html_nodes(x = rvest::read_html(html), css = "li")
+  
+  wic_sites1 <- data.frame(
+    site_name = nodes %>%
+      rvest::html_element("h3") %>%
+      rvest::html_text2(),
+    full_address = nodes %>%
+      rvest::html_element(css = ".OfficeAddress") %>%
+      rvest::html_text2()
+  )
+  
+  wic_sites1 <-
+    wic_sites1 %>% tidyr::separate("full_address", c("address", "city_state_zip"), sep = "\n") %>%
+    tidyr::separate("city_state_zip", c("site_city", "state_zip"), sep = ", ") %>%
+    tidyr::separate("state_zip", c("site_state", "site_zip"), sep = " ")
+  
+  # Using package-defined function
+  
+  wic_sites2 <- scrape_dhs_sites(remDr, "WIC")
+  
+  expect_equal(wic_sites1, wic_sites2)
+})

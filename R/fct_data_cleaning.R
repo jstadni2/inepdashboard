@@ -321,3 +321,47 @@ ff_import <- function(query) {
   
   food_finder_sites
 }
+
+# community.R functions
+
+scrape_dhs_sites <- function(remDr, office_type) {
+  remDr$navigate("https://www.dhs.state.il.us/page.aspx?module=12&officetype=&county")
+  
+  # define value here for scope?
+  val <- ""
+  
+  if (office_type == "WIC") {
+    val <- "#SearchOffice_OfficeTypeDropDownList > option:nth-child(20)"
+  } else if (office_type == "FCRC") {
+    val <- "#SearchOffice_OfficeTypeDropDownList > option:nth-child(10)"
+  }
+  
+  remDr$findElement(using = "css selector", value = val)$clickElement() # this line fails test_that
+  remDr$findElement(using = "css selector", value = "#SearchOffice_FindOfficesButton")$clickElement()
+  
+  Sys.sleep(2)
+  
+  search_results <- remDr$findElement(using = "css selector", "#OfficeList")
+  html <- search_results$getElementAttribute('innerHTML')[[1]]
+  
+  remDr$close()
+  
+  nodes <-
+    rvest::html_nodes(x = rvest::read_html(html), css = "li")
+  
+  dhs_sites <- data.frame(
+    site_name = nodes %>%
+      rvest::html_element("h3") %>%
+      rvest::html_text2(),
+    full_address = nodes %>%
+      rvest::html_element(css = ".OfficeAddress") %>%
+      rvest::html_text2()
+  )
+  
+  dhs_sites <-
+    dhs_sites %>% tidyr::separate("full_address", c("address", "city_state_zip"), sep = "\n") %>%
+    tidyr::separate("city_state_zip", c("site_city", "state_zip"), sep = ", ") %>%
+    tidyr::separate("state_zip", c("site_state", "site_zip"), sep = " ")
+  
+  dhs_sites
+}
