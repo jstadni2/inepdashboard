@@ -328,18 +328,18 @@ scrape_dhs_sites <- function(remDr, office_type) {
   remDr$navigate("https://www.dhs.state.il.us/page.aspx?module=12&officetype=&county")
   
   # define value here for scope?
-  val <- ""
-  
+  # val <- ""
+
   if (office_type == "WIC") {
     val <- "#SearchOffice_OfficeTypeDropDownList > option:nth-child(20)"
   } else if (office_type == "FCRC") {
     val <- "#SearchOffice_OfficeTypeDropDownList > option:nth-child(10)"
   }
   
-  remDr$findElement(using = "css selector", value = val)$clickElement() # this line fails test_that
+  remDr$findElement(using = "css selector", value = val)$clickElement()
   remDr$findElement(using = "css selector", value = "#SearchOffice_FindOfficesButton")$clickElement()
   
-  Sys.sleep(2)
+  Sys.sleep(5)
   
   search_results <- remDr$findElement(using = "css selector", "#OfficeList")
   html <- search_results$getElementAttribute('innerHTML')[[1]]

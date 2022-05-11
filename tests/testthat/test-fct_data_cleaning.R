@@ -431,11 +431,10 @@ test_that ("scrape_dhs_sites", {
   # 
   # remDr$open()
   
-  remDr <-  RSelenium::remoteDriver(
-    remoteServerAddr = "192.168.1.5",
-    port = 4445L,
-    browserName = "chrome"
-  )
+  remDr <-
+    RSelenium::remoteDriver(remoteServerAddr = "192.168.1.5",
+                            port = 4445L,
+                            browserName = "chrome")
   remDr$open()
   
   # Using manual operations
@@ -454,7 +453,7 @@ test_that ("scrape_dhs_sites", {
   
   html <- search_results$getElementAttribute('innerHTML')[[1]]
   
-  remDr$close()
+  # remDr$close()
   
   nodes <-
     rvest::html_nodes(x = rvest::read_html(html), css = "li")
@@ -469,13 +468,15 @@ test_that ("scrape_dhs_sites", {
   )
   
   wic_sites1 <-
-    wic_sites1 %>% tidyr::separate("full_address", c("address", "city_state_zip"), sep = "\n") %>%
-    tidyr::separate("city_state_zip", c("site_city", "state_zip"), sep = ", ") %>%
-    tidyr::separate("state_zip", c("site_state", "site_zip"), sep = " ")
+    suppressWarnings(
+      wic_sites1 %>% tidyr::separate("full_address", c("address", "city_state_zip"), sep = "\n") %>%
+        tidyr::separate("city_state_zip", c("site_city", "state_zip"), sep = ", ") %>%
+        tidyr::separate("state_zip", c("site_state", "site_zip"), sep = " ")
+    )
   
   # Using package-defined function
   
-  wic_sites2 <- scrape_dhs_sites(remDr, "WIC")
+  wic_sites2 <- suppressWarnings(scrape_dhs_sites(remDr, "WIC"))
   
   expect_equal(wic_sites1, wic_sites2)
 })
