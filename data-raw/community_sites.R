@@ -35,6 +35,55 @@ fcrc_sites <- scrape_dhs_sites(remDr, "FCRC")
 # ISBE Eligible Schools
 # https://www.isbe.net/Pages/Nutrition-Data-Analytics-Maps.aspx
 
+# Check for most recent download link
+
+# eCaps <- list(chromeOptions = list(
+#   args = c('--no-sandbox', '--disable-dev-shm-usage')
+# ))
+# 
+# remDr <-  RSelenium::remoteDriver(
+#   remoteServerAddr = "192.168.1.5",
+#   port = 4445L,
+#   browserName = "chrome",
+#   extraCapabilities = eCaps
+# )
+# remDr$open()
+# 
+# remDr$navigate("https://www.isbe.net/Pages/Nutrition-Data-Analytics-Maps.aspx")
+# 
+# # remDr$findElement(using = "css selector", value = "#WebPartWPQ4 > div.ms-rtestate-field > ul")
+# three_columns <-remDr$findElement(using = "css selector", value = "#WebPartWPQ4 > div:nth-child(1)")
+# 
+# html <- three_columns$getElementAttribute('innerHTML')[[1]]
+# 
+# # remDr$navigate("https://www.isbe.net/_layouts/Download.aspx?SourceUrl=/Documents/FY20-eligibility.xlsx")
+
+download.file(
+  url = "https://www.isbe.net/_layouts/Download.aspx?SourceUrl=/Documents/FY20-eligibility.xlsx",
+  destfile = "./data-raw/Free and Reduced-Price Lunch Eligibility List (2020).xlsx", # rename
+  mode = "wb"
+)
+
+site_cols <- c("site_name",
+               "site_address",
+               "site_city",
+               "site_county",
+               "site_zip")
+
+eligible_schools <-
+  readxl::read_xlsx("./data-raw/Free and Reduced-Price Lunch Eligibility List (2020).xlsx", # rename
+                    skip = 3) %>% dplyr::rename_at(dplyr::all_of(c(
+                      "Site", "Site Address", "Site City", "Site County", "Site Zip"
+                    )),
+                    ~ site_cols)
+
+eligible_schools$site_state <- "IL"
+eligible_schools$site_type <- "Eligible School"
+
+eligible_schools <-
+  eligible_schools %>% dplyr::select(dplyr::starts_with("site_"))
+
+
 # IL Food Banks: Homeless Shelters
 # http://www.illinoisfoodbanks.org/sites.asp
 # Filter By: Type
