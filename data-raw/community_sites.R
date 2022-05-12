@@ -8,6 +8,10 @@
 # In terminal: docker run -d -p 4445:4444 selenium/standalone-chrome
 # In terminal: docker run -d -p 4445:4444 selenium/standalone-firefox
 
+system("cmd.exe", input = 'call "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe"')
+
+system("docker run -d -p 4445:4444 selenium/standalone-chrome")
+
 # Create firefox pofile (below doesn't work)
 
 # fprof <- RSelenium::makeFirefoxProfile(list(browser.download.dir = "D:/temp"))
