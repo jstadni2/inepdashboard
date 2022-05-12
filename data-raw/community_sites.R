@@ -84,11 +84,44 @@ eligible_schools <-
   eligible_schools %>% dplyr::select(dplyr::starts_with("site_"))
 
 
-# IL Food Banks: Homeless Shelters
+# IL Food Banks: Emergency Shelters
 # http://www.illinoisfoodbanks.org/sites.asp
+
+remDr$navigate("http://www.illinoisfoodbanks.org/sites.asp")
+
 # Filter By: Type
+remDr$findElement(using = "css selector", value = "#chkType")$clickElement()
 # Type: Homeless Shelter
+remDr$findElement(using = "css selector", value = "#sType > option:nth-child(4)")$clickElement()
 # Display Type: List
+remDr$findElement(using = "css selector", value = "#inputFieldBlock > table > tbody > tr > td:nth-child(3) > input[type=radio]")$clickElement()
+remDr$findElement(using = "css selector", value = "#frmSubmit > div:nth-child(3) > input[type=submit]")$clickElement()
+
+Sys.sleep(5)
+
+table <- remDr$findElement(using = "css selector", value = "#contentPanel > table")
+html <- table$getElementAttribute('outerHTML')[[1]]
+
+emergency_shelters <- rvest::read_html(html) %>% 
+  rvest::html_element("table") %>%
+  rvest::html_table()
+
+# Create wrapper function starting here
+
+emergency_shelters <-
+  emergency_shelters %>% dplyr::rename_at(dplyr::all_of(c(
+    "Site Name", "Address", "City", "County", "ZIP"
+  )),
+  ~ site_cols)
+
+emergency_shelters$site_state <- "IL"
+emergency_shelters$site_type <- "Emergency Shelter"
+
+emergency_shelters <-
+  emergency_shelters %>% dplyr::select(dplyr::starts_with("site_"))
+
+# Wrapper ends here
+
 
 # rbind and geocode wic_sites, fcrc_sites, eligible_schools, homeless_shelters
 
