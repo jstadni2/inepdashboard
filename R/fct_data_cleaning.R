@@ -377,6 +377,16 @@ scrape_dhs_sites <- function(remDr, office_type) {
   dhs_sites
 }
 
+#' Format sites for \code{community_sites}
+#'
+#' @param sites Data frame of sites to be included in \code{community_sites}.
+#' @param rename_cols Character vector of variable names to rename.
+#' @param site_type Character value for the type of site.
+#'
+#' @return A data frame that can be appended to \code{community_sites}.
+#' @export
+#'
+#' @examples
 clean_community_sites <- function(sites, rename_cols, site_type) {
   site_cols <- c("site_name",
                  "site_address",
