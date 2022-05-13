@@ -102,17 +102,41 @@ emergency_shelters <- rvest::read_html(html) %>%
   rvest::html_element("table") %>%
   rvest::html_table()
 
-emergency_shelters1 <-
+emergency_shelters <-
   clean_community_sites(
     sites = emergency_shelters,
     rename_cols = c("Site Name", "Address", "City", "County", "ZIP"),
     site_type = "Emergency Shelter"
   )
 
-# Wrapper ends here
+# Combine and geocode wic_sites, fcrc_sites, eligible_schools, homeless_shelters
 
+sites_to_geocode <-
+  dplyr::bind_rows(
+    wic_sites,
+    fcrc_sites,
+    eligible_schools, 
+    emergency_shelters
+    )
 
-# rbind and geocode wic_sites, fcrc_sites, eligible_schools, homeless_shelters
+sites_geocoded <- sites_to_geocode %>%
+  tidygeocoder::geocode_combine(
+    queries = list(
+      list(method = 'census', mode = 'batch'),
+      list(method = 'census', mode = 'single'),
+      list(method = 'osm')
+    ),
+    global_params = list(
+      street = "site_address",
+      city = "site_city",
+      state = "site_state",
+      postalcode = "site_zip"
+    ),
+    cascade = TRUE
+  )
+
+# Took 16 mins
+# 143 sites not geocoded (mostly PO boxes)
 
 # Head Start Centers
 # https://eclkc.ohs.acf.hhs.gov/center-locator?latitude=40.633&longitude=-89.399&state=IL
