@@ -66,28 +66,19 @@ download.file(
   mode = "wb"
 )
 
-# Use wrapper function here
+eligible_schools <-
+  readxl::read_xlsx("./data-raw/Free and Reduced-Price Lunch Eligibility List (2020).xlsx",
+                    # rename, download as csv?
+                    skip = 3) 
 
-site_cols <- c("site_name",
-               "site_address",
-               "site_city",
-               "site_county",
-               "site_zip")
+eligible_schools <- eligible_schools[eligible_schools$"Eligibility Percent" >= 50, ]
 
 eligible_schools <-
-  readxl::read_xlsx("./data-raw/Free and Reduced-Price Lunch Eligibility List (2020).xlsx", # rename, download as csv?
-                    skip = 3) %>% dplyr::rename_at(dplyr::all_of(c(
-                      "Site", "Site Address", "Site City", "Site County", "Site Zip"
-                    )),
-                    ~ site_cols)
-
-# eligible_schools <- eligible_schools[eligible_schools$"Eligibility Percent" >= 50, ]
-
-eligible_schools$site_state <- "IL"
-eligible_schools$site_type <- "Eligible School"
-
-eligible_schools <-
-  eligible_schools %>% dplyr::select(dplyr::starts_with("site_"))
+  clean_community_sites(
+    sites = eligible_schools,
+    rename_cols = c("Site", "Site Address", "Site City", "Site County", "Site Zip"),
+    site_type = "Eligible School"
+  )
 
 # IL Food Banks: Emergency Shelters
 # http://www.illinoisfoodbanks.org/sites.asp
@@ -111,19 +102,12 @@ emergency_shelters <- rvest::read_html(html) %>%
   rvest::html_element("table") %>%
   rvest::html_table()
 
-# Create wrapper function starting here
-
-emergency_shelters <-
-  emergency_shelters %>% dplyr::rename_at(dplyr::all_of(c(
-    "Site Name", "Address", "City", "County", "ZIP"
-  )),
-  ~ site_cols)
-
-emergency_shelters$site_state <- "IL"
-emergency_shelters$site_type <- "Emergency Shelter"
-
-emergency_shelters <-
-  emergency_shelters %>% dplyr::select(dplyr::starts_with("site_"))
+emergency_shelters1 <-
+  clean_community_sites(
+    sites = emergency_shelters,
+    rename_cols = c("Site Name", "Address", "City", "County", "ZIP"),
+    site_type = "Emergency Shelter"
+  )
 
 # Wrapper ends here
 
