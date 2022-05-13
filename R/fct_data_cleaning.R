@@ -324,6 +324,15 @@ ff_import <- function(query) {
 
 # community.R functions
 
+#' Webscrape office sites from IL DHS website
+#'
+#' @param remDr Open CLASS remoteDriver from the RSelenium package.
+#' @param office_type Character value for DHS Office type. Currently either \code{"WIC"} or \code{"FCRC"}.
+#'
+#' @return A data frame of sites for the specified office type.
+#' @export
+#'
+#' @examples
 scrape_dhs_sites <- function(remDr, office_type) {
   remDr$navigate("https://www.dhs.state.il.us/page.aspx?module=12&officetype=&county")
   
@@ -366,4 +375,23 @@ scrape_dhs_sites <- function(remDr, office_type) {
     tidyr::separate("state_zip", c("site_state", "site_zip"), sep = " ")
   
   dhs_sites
+}
+
+clean_community_sites <- function(sites, rename_cols, site_type) {
+  site_cols <- c("site_name",
+                 "site_address",
+                 "site_city",
+                 "site_county",
+                 "site_zip")
+  
+  cleaned_sites <-
+    sites %>% dplyr::rename_at(dplyr::all_of(rename_cols),
+                               ~ site_cols)
+  
+  cleaned_sites$site_state <- "IL"
+  cleaned_sites$site_type <- site_type
+  
+  cleaned_sites <-
+    cleaned_sites %>% dplyr::select(dplyr::starts_with("site_"))
+  cleaned_sites
 }

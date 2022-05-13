@@ -10,6 +10,8 @@
 
 system("cmd.exe", input = 'call "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe"')
 
+Sys.sleep(5)
+
 system("docker run -d -p 4445:4444 selenium/standalone-chrome")
 
 # Create firefox pofile (below doesn't work)
@@ -64,6 +66,8 @@ download.file(
   mode = "wb"
 )
 
+# Use wrapper function here
+
 site_cols <- c("site_name",
                "site_address",
                "site_city",
@@ -71,18 +75,19 @@ site_cols <- c("site_name",
                "site_zip")
 
 eligible_schools <-
-  readxl::read_xlsx("./data-raw/Free and Reduced-Price Lunch Eligibility List (2020).xlsx", # rename
+  readxl::read_xlsx("./data-raw/Free and Reduced-Price Lunch Eligibility List (2020).xlsx", # rename, download as csv?
                     skip = 3) %>% dplyr::rename_at(dplyr::all_of(c(
                       "Site", "Site Address", "Site City", "Site County", "Site Zip"
                     )),
                     ~ site_cols)
+
+# eligible_schools <- eligible_schools[eligible_schools$"Eligibility Percent" >= 50, ]
 
 eligible_schools$site_state <- "IL"
 eligible_schools$site_type <- "Eligible School"
 
 eligible_schools <-
   eligible_schools %>% dplyr::select(dplyr::starts_with("site_"))
-
 
 # IL Food Banks: Emergency Shelters
 # http://www.illinoisfoodbanks.org/sites.asp

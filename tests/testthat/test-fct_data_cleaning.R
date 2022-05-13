@@ -420,6 +420,20 @@ test_that ("get_acs_st", {
 
 # community_sites.R function tests
 
+# # Check if Selenium docker container is running
+# # If not, start Selenium container
+# # https://stat.ethz.ch/R-manual/R-devel/library/base/html/system.html
+# # If fails, print directions to install Selenium image
+# 
+# # In terminal: docker run -d -p 4445:4444 selenium/standalone-chrome
+# # In terminal: docker run -d -p 4445:4444 selenium/standalone-firefox
+# 
+# system("cmd.exe", input = 'call "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe"')
+# 
+# Sys.sleep(5)
+# 
+# system("docker run -d -p 4445:4444 selenium/standalone-chrome")
+
 test_that ("scrape_dhs_sites", {
   # Check if Selenium container is running
   # If not, start Selenium container
@@ -473,3 +487,50 @@ test_that ("scrape_dhs_sites", {
   
   expect_equal(wic_sites1, wic_sites2)
 })
+
+test_that("clean_community_sites", {
+  
+  raw_eligible_schools <-
+    readxl::read_xlsx(
+      system.file(
+        "testdata",
+        "Free and Reduced-Price Lunch Eligibility List (2020).xlsx", # rename, download as csv?
+        package = "inepdashboard"
+      ),
+      skip = 3
+    )
+  
+  raw_eligible_schools <- raw_eligible_schools[raw_eligible_schools$"Eligibility Percent" >= 50, ]
+  
+  rename_cols <- c("Site", "Site Address", "Site City", "Site County", "Site Zip")
+  
+  # Using manual operations
+  
+  # Use wrapper function here
+  
+  site_cols <- c("site_name",
+                 "site_address",
+                 "site_city",
+                 "site_county",
+                 "site_zip")
+  
+  eligible_schools1 <-
+    raw_eligible_schools %>% dplyr::rename_at(dplyr::all_of(rename_cols),
+                                             ~ site_cols)
+  
+  eligible_schools1$site_state <- "IL"
+  eligible_schools1$site_type <- "Eligible School"
+  
+  eligible_schools1 <-
+    eligible_schools1 %>% dplyr::select(dplyr::starts_with("site_"))
+  
+  # Using package-defined function
+  
+  eligible_schools2 <-
+    clean_community_sites(sites = raw_eligible_schools,
+                          rename_cols = rename_cols,
+                          site_type = "Eligible School")
+  
+  expect_equal(eligible_schools1, eligible_schools2)
+}
+)
