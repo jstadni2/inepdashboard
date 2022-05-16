@@ -12,19 +12,38 @@ system("cmd.exe", input = 'call "C:\\Program Files\\Docker\\Docker\\Docker Deskt
 
 Sys.sleep(5)
 
-system("docker run -d -p 4445:4444 selenium/standalone-chrome")
+system("docker run --name selchrome -d -p 4445:4444 selenium/standalone-chrome" )
 
 # Create firefox pofile (below doesn't work)
 
 # fprof <- RSelenium::makeFirefoxProfile(list(browser.download.dir = "D:/temp"))
 # fprof.setAcceptUntrustedCertificates(TRUE)
 
+file_path <- getwd() %>% stringr::str_replace_all("/", "\\\\\\")
+# 
+# eCaps <- list(chromeOptions =
+#                 list(
+#                   prefs = list(
+#                     # "profile.default_content_settings.popups" = 0L,
+#                     # "download.prompt_for_download" = FALSE,
+#                     # "directory_upgrade" = TRUE,
+#                     # "download.default_directory" = "C:\\Users\\jstadni2\\Box\\FCS Data Analyst\\External Community Profile\\inepdashboard\\data-raw"
+#                     # "download.default_directory" = file_path
+#                   )
+#                 ))
+
 remDr <-  RSelenium::remoteDriver(
   remoteServerAddr = "192.168.1.5",
   port = 4445L,
-  browserName = "chrome"
+  browserName = "chrome"#,
+  # extraCapabilities = eCaps
 )
 remDr$open()
+
+# # For local testing (doesn't work in test_that)
+# rD <- RSelenium::rsDriver(browser="firefox", port=4545L, verbose=F)
+# remDr <- rD[["client"]]
+# remDr$open()
 
 # Scrape data from DHS office locator (https://www.dhs.state.il.us/page.aspx?module=12)
 
@@ -140,6 +159,21 @@ sites_geocoded <- sites_to_geocode %>%
 
 # Head Start Centers
 # https://eclkc.ohs.acf.hhs.gov/center-locator?latitude=40.633&longitude=-89.399&state=IL
+
+remDr$navigate("https://eclkc.ohs.acf.hhs.gov/center-locator?latitude=40.633&longitude=-89.399&state=IL")
+
+remDr$findElement(using = "css selector", value = "#downloadCSV > button")$clickElement()
+
+# Move file from Downloads to data-raw
+
+system("cmd.exe", input = 'docker cp selchrome:/home/seluser/Downloads/data.csv "C:\\Users\\jstadni2\\Box\\FCS Data Analyst\\External Community Profile\\inepdashboard\\data-raw"')
+
+dest_path <- "C:\\Users\\jstadni2\\Box\\FCS Data Analyst\\External Community Profile\\inepdashboard\\data-raw\\"
+
+file.rename(paste0(dest_path, "data.csv"),
+            paste0(dest_path, "head_start_centers.csv"))
+
+# Rename file?
 
 # Federally Qualified Health Centers
 # https://data.hrsa.gov/geo
