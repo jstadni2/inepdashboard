@@ -158,29 +158,33 @@ sites_geocoded <- sites_to_geocode %>%
 # 143 sites not geocoded (mostly PO boxes)
 
 # Head Start Centers
-# https://eclkc.ohs.acf.hhs.gov/center-locator?latitude=40.633&longitude=-89.399&state=IL
-
-remDr$navigate("https://eclkc.ohs.acf.hhs.gov/center-locator?latitude=40.633&longitude=-89.399&state=IL")
-
-remDr$findElement(using = "css selector", value = "#downloadCSV > button")$clickElement()
-
-# Move file from Downloads to data-raw
-
-# Get input path and container name programmatically
-system("cmd.exe", input = 'docker cp selchrome:/home/seluser/Downloads/data.csv "C:\\Users\\jstadni2\\Box\\FCS Data Analyst\\External Community Profile\\inepdashboard\\data-raw"')
-system("cmd.exe", input = 'docker exec selchrome rm -rf /home/seluser/Downloads/data.csv"')
-
-dest_path <- "C:\\Users\\jstadni2\\Box\\FCS Data Analyst\\External Community Profile\\inepdashboard\\data-raw\\"
-
-file.rename(paste0(dest_path, "data.csv"),
-            paste0(dest_path, "head_start_centers.csv"))
-
-# import head_start_centers.csv and prep it for community_sites
-
-# Alternative: figure out how to get chrome profile working
-
-# USE HEAD START API INSTEAD
+# Using Head Start API
 # https://eclkc.ohs.acf.hhs.gov/developers/signup
+# https://eclkc.ohs.acf.hhs.gov/developers/guide
+
+eclkc_q <- eclkc_query(key, "IL") # store key in env?
+
+head_start_centers <- jsonlite::fromJSON(eclkc_q)$documents
+
+head_start_centers$zipFour <-
+  gsub("-1", "", head_start_centers$zipFour)
+
+head_start_centers$zip <-
+  ifelse(
+    head_start_centers$zipFour != "",
+    paste(head_start_centers$zipFive, head_start_centers$zipFour, sep = "-"),
+    head_start_centers$zipFive
+  )
+
+head_start_centers <-
+  clean_community_sites(
+    head_start_centers,
+    rename_cols = c("name", "addressLineOne", "city", "county", "zip"),
+    site_type = "Head Start Center",
+    coords = TRUE
+  )
+
+# Remove head_start_centers.csv from dir, git    
 
 # Federally Qualified Health Centers
 # https://data.hrsa.gov/geo

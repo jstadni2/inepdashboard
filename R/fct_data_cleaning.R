@@ -382,12 +382,12 @@ scrape_dhs_sites <- function(remDr, office_type) {
 #' @param sites Data frame of sites to be included in \code{community_sites}.
 #' @param rename_cols Character vector of variable names to rename.
 #' @param site_type Character value for the type of site.
-#'
+#' @param coords Bool value for whether coordinates are included in \code{sites}.
 #' @return A data frame that can be appended to \code{community_sites}.
 #' @export
 #'
 #' @examples
-clean_community_sites <- function(sites, rename_cols, site_type) {
+clean_community_sites <- function(sites, rename_cols, site_type, coords = FALSE) {
   site_cols <- c("site_name",
                  "site_address",
                  "site_city",
@@ -401,11 +401,32 @@ clean_community_sites <- function(sites, rename_cols, site_type) {
   cleaned_sites$site_state <- "IL"
   cleaned_sites$site_type <- site_type
   
-  cleaned_sites <-
-    cleaned_sites %>% dplyr::select(dplyr::starts_with("site_"))
+  if (coords) {
+    cleaned_sites <-
+      cleaned_sites %>% dplyr::select(dplyr::starts_with("site_"), longitude, latitude)
+  } else {
+    cleaned_sites <-
+      cleaned_sites %>% dplyr::select(dplyr::starts_with("site_"))
+  }
+  
+  
   cleaned_sites
 }
 
+#' Generate queries for Head Start API
+#' 
+#' [Head Start API Guide](https://eclkc.ohs.acf.hhs.gov/developers/guide)
+#'
+#' @param key Head Start API Key.
+#' Instructions for retrieving an API Key can be found [here](https://eclkc.ohs.acf.hhs.gov/developers/signup).
+#' @param state State is a two-letter, case-insensitive postal code for the state.
+#' Included codes are for all 50 U.S. states and U.S. territories.
+#' If the state code is invalid, the errors array will contain "State is invalid".
+#'
+#' @return A string for the Head Start API query.
+#' @export 
+#'
+#' @examples
 eclkc_query <- function(key, state) {
   query <- paste0(
     "https://eclkc.ohs.acf.hhs.gov/eclkc-apis/locator/api/center?",
