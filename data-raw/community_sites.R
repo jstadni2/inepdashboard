@@ -179,6 +179,9 @@ file.rename(paste0(dest_path, "data.csv"),
 
 # Alternative: figure out how to get chrome profile working
 
+# USE HEAD START API INSTEAD
+# https://eclkc.ohs.acf.hhs.gov/developers/signup
+
 # Federally Qualified Health Centers
 # https://data.hrsa.gov/geo
 
@@ -211,6 +214,9 @@ download.file(
 )
 
 # import Health_Center_Service_Delivery_and_LookAlike_Sites.csv and prep it for community_sites
+
+# USE HRSA API INSTEAD
+# https://data.hrsa.gov/data/services
 
 # rbind all sites into community_sites
 # reference
