@@ -247,7 +247,7 @@ ff_query <-
            max_lat = 42.81674576662397,
            min_lon = -91.91983678325361,
            max_lon = -87.36749173318934) {
-    query = paste0(
+    query <- paste0(
       "https://api-v2-prod-dot-foodfinder-183216.uc.r.appspot.com/partners/providers?",
       "key=", key, #determine how to store key in project env
       "&limit=",  limit,
@@ -404,4 +404,13 @@ clean_community_sites <- function(sites, rename_cols, site_type) {
   cleaned_sites <-
     cleaned_sites %>% dplyr::select(dplyr::starts_with("site_"))
   cleaned_sites
+}
+
+eclkc_query <- function(key, state) {
+  query <- paste0(
+    "https://eclkc.ohs.acf.hhs.gov/eclkc-apis/locator/api/center?",
+    "state=", state,
+    "&apikey=", key #determine how to store key in project env
+  )
+  query
 }

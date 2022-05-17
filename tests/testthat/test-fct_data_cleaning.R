@@ -434,103 +434,111 @@ test_that ("get_acs_st", {
 # 
 # system("docker run -d -p 4445:4444 selenium/standalone-chrome")
 
-test_that ("scrape_dhs_sites", {
-  # Check if Selenium container is running
-  # If not, start Selenium container
+# test_that ("scrape_dhs_sites", {
+#   # Check if Selenium container is running
+#   # If not, start Selenium container
+#   
+#   # Open Remote Driver
+#   
+#   remDr <-
+#     RSelenium::remoteDriver(remoteServerAddr = "192.168.1.5",
+#                             port = 4445L,
+#                             browserName = "chrome")
+#   remDr$open()
+#   
+#   # Using manual operations
+#   
+#   remDr$navigate("https://www.dhs.state.il.us/page.aspx?module=12&officetype=&county")
+#   
+#   # Select Office Type - WIC
+#   remDr$findElement(using = 'xpath', "/html/body/div[2]/div[2]/form/div[3]/div[2]/div[1]/select/option[20]")$clickElement()
+#   # Click "Find Offices"
+#   remDr$findElement(using = 'xpath', "//*[@id='SearchOffice_FindOfficesButton']")$clickElement()
+#   
+#   Sys.sleep(2)
+#   
+#   # search_results <- remDr$findElements("id", "SearchResults")
+#   search_results <- remDr$findElement(using = 'xpath', "//*[@id='OfficeList']")
+#   
+#   html <- search_results$getElementAttribute('innerHTML')[[1]]
+#   
+#   nodes <-
+#     rvest::html_nodes(x = rvest::read_html(html), css = "li")
+#   
+#   wic_sites1 <- data.frame(
+#     site_name = nodes %>%
+#       rvest::html_element("h3") %>%
+#       rvest::html_text2(),
+#     full_address = nodes %>%
+#       rvest::html_element(css = ".OfficeAddress") %>%
+#       rvest::html_text2()
+#   )
+#   
+#   wic_sites1 <-
+#     suppressWarnings(
+#       wic_sites1 %>% tidyr::separate("full_address", c("address", "city_state_zip"), sep = "\n") %>%
+#         tidyr::separate("city_state_zip", c("site_city", "state_zip"), sep = ", ") %>%
+#         tidyr::separate("state_zip", c("site_state", "site_zip"), sep = " ")
+#     )
+#   
+#   # Using package-defined function
+#   
+#   wic_sites2 <- suppressWarnings(scrape_dhs_sites(remDr, "WIC"))
+#   
+#   expect_equal(wic_sites1, wic_sites2)
+# })
+# 
+# test_that("clean_community_sites", {
+#   
+#   raw_eligible_schools <-
+#     readxl::read_xlsx(
+#       system.file(
+#         "testdata",
+#         "Free and Reduced-Price Lunch Eligibility List (2020).xlsx", # rename, download as csv?
+#         package = "inepdashboard"
+#       ),
+#       skip = 3
+#     )
+#   
+#   raw_eligible_schools <- raw_eligible_schools[raw_eligible_schools$"Eligibility Percent" >= 50, ]
+#   
+#   rename_cols <- c("Site", "Site Address", "Site City", "Site County", "Site Zip")
+#   
+#   # Using manual operations
+#   
+#   site_cols <- c("site_name",
+#                  "site_address",
+#                  "site_city",
+#                  "site_county",
+#                  "site_zip")
+#   
+#   eligible_schools1 <-
+#     raw_eligible_schools %>% dplyr::rename_at(dplyr::all_of(rename_cols),
+#                                              ~ site_cols)
+#   
+#   eligible_schools1$site_state <- "IL"
+#   eligible_schools1$site_type <- "Eligible School"
+#   
+#   eligible_schools1 <-
+#     eligible_schools1 %>% dplyr::select(dplyr::starts_with("site_"))
+#   
+#   # Using package-defined function
+#   
+#   eligible_schools2 <-
+#     clean_community_sites(sites = raw_eligible_schools,
+#                           rename_cols = rename_cols,
+#                           site_type = "Eligible School")
+#   
+#   expect_equal(eligible_schools1, eligible_schools2)
+# })
+
+test_that("eclkc_query", {
+  key <- "1234"
+  state <- "IL"
   
-  # Open Remote Driver
-  
-  remDr <-
-    RSelenium::remoteDriver(remoteServerAddr = "192.168.1.5",
-                            port = 4445L,
-                            browserName = "chrome")
-  remDr$open()
-  
-  # Using manual operations
-  
-  remDr$navigate("https://www.dhs.state.il.us/page.aspx?module=12&officetype=&county")
-  
-  # Select Office Type - WIC
-  remDr$findElement(using = 'xpath', "/html/body/div[2]/div[2]/form/div[3]/div[2]/div[1]/select/option[20]")$clickElement()
-  # Click "Find Offices"
-  remDr$findElement(using = 'xpath', "//*[@id='SearchOffice_FindOfficesButton']")$clickElement()
-  
-  Sys.sleep(2)
-  
-  # search_results <- remDr$findElements("id", "SearchResults")
-  search_results <- remDr$findElement(using = 'xpath', "//*[@id='OfficeList']")
-  
-  html <- search_results$getElementAttribute('innerHTML')[[1]]
-  
-  nodes <-
-    rvest::html_nodes(x = rvest::read_html(html), css = "li")
-  
-  wic_sites1 <- data.frame(
-    site_name = nodes %>%
-      rvest::html_element("h3") %>%
-      rvest::html_text2(),
-    full_address = nodes %>%
-      rvest::html_element(css = ".OfficeAddress") %>%
-      rvest::html_text2()
+  expect_equal(
+    eclkc_query(key, state),
+    "https://eclkc.ohs.acf.hhs.gov/eclkc-apis/locator/api/center?state=IL&apikey=1234"
   )
   
-  wic_sites1 <-
-    suppressWarnings(
-      wic_sites1 %>% tidyr::separate("full_address", c("address", "city_state_zip"), sep = "\n") %>%
-        tidyr::separate("city_state_zip", c("site_city", "state_zip"), sep = ", ") %>%
-        tidyr::separate("state_zip", c("site_state", "site_zip"), sep = " ")
-    )
-  
-  # Using package-defined function
-  
-  wic_sites2 <- suppressWarnings(scrape_dhs_sites(remDr, "WIC"))
-  
-  expect_equal(wic_sites1, wic_sites2)
 })
-
-test_that("clean_community_sites", {
-  
-  raw_eligible_schools <-
-    readxl::read_xlsx(
-      system.file(
-        "testdata",
-        "Free and Reduced-Price Lunch Eligibility List (2020).xlsx", # rename, download as csv?
-        package = "inepdashboard"
-      ),
-      skip = 3
-    )
-  
-  raw_eligible_schools <- raw_eligible_schools[raw_eligible_schools$"Eligibility Percent" >= 50, ]
-  
-  rename_cols <- c("Site", "Site Address", "Site City", "Site County", "Site Zip")
-  
-  # Using manual operations
-  
-  # Use wrapper function here
-  
-  site_cols <- c("site_name",
-                 "site_address",
-                 "site_city",
-                 "site_county",
-                 "site_zip")
-  
-  eligible_schools1 <-
-    raw_eligible_schools %>% dplyr::rename_at(dplyr::all_of(rename_cols),
-                                             ~ site_cols)
-  
-  eligible_schools1$site_state <- "IL"
-  eligible_schools1$site_type <- "Eligible School"
-  
-  eligible_schools1 <-
-    eligible_schools1 %>% dplyr::select(dplyr::starts_with("site_"))
-  
-  # Using package-defined function
-  
-  eligible_schools2 <-
-    clean_community_sites(sites = raw_eligible_schools,
-                          rename_cols = rename_cols,
-                          site_type = "Eligible School")
-  
-  expect_equal(eligible_schools1, eligible_schools2)
-}
-)
