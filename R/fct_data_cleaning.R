@@ -327,7 +327,7 @@ ff_import <- function(query) {
 #' Webscrape office sites from IL DHS website
 #'
 #' @param remDr Open CLASS remoteDriver from the RSelenium package.
-#' @param office_type Character value for DHS Office type. Currently either \code{"WIC"} or \code{"FCRC"}.
+#' @param office_type Character value for DHS Office type. Currently either \code{"WIC Office"} or \code{"FCRC"}.
 #'
 #' @return A data frame of sites for the specified office type.
 #' @export
@@ -339,7 +339,7 @@ scrape_dhs_sites <- function(remDr, office_type) {
   # define value here for scope?
   # val <- ""
 
-  if (office_type == "WIC") {
+  if (office_type == "WIC Office") {
     val <- "#SearchOffice_OfficeTypeDropDownList > option:nth-child(20)"
   } else if (office_type == "FCRC") {
     val <- "#SearchOffice_OfficeTypeDropDownList > option:nth-child(10)"
@@ -370,9 +370,11 @@ scrape_dhs_sites <- function(remDr, office_type) {
   )
   
   dhs_sites <-
-    dhs_sites %>% tidyr::separate("full_address", c("address", "city_state_zip"), sep = "\n") %>%
+    dhs_sites %>% tidyr::separate("full_address", c("site_address", "city_state_zip"), sep = "\n") %>%
     tidyr::separate("city_state_zip", c("site_city", "state_zip"), sep = ", ") %>%
     tidyr::separate("state_zip", c("site_state", "site_zip"), sep = " ")
+  
+  dhs_sites$site_type <- office_type
   
   dhs_sites
 }
@@ -391,7 +393,7 @@ clean_community_sites <- function(sites, rename_cols, site_type, coords = FALSE)
   site_cols <- c("site_name",
                  "site_address",
                  "site_city",
-                 "site_county",
+                 # "site_county",
                  "site_zip")
   
   cleaned_sites <-

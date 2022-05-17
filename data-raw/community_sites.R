@@ -10,9 +10,11 @@
 
 system("cmd.exe", input = 'call "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe"')
 
-Sys.sleep(5)
+Sys.sleep(10)
 
-system("docker run --name selchrome -d -p 4445:4444 selenium/standalone-chrome" )
+# system("docker run --name selchrome -d -p 4445:4444 selenium/standalone-chrome" )
+
+system("docker start selchrome" )
 
 # Create firefox pofile (below doesn't work)
 
@@ -47,7 +49,7 @@ remDr$open()
 
 # Scrape data from DHS office locator (https://www.dhs.state.il.us/page.aspx?module=12)
 
-wic_sites <- scrape_dhs_sites(remDr, "WIC")
+wic_sites <- scrape_dhs_sites(remDr, "WIC Office")
 
 fcrc_sites <- scrape_dhs_sites(remDr, "FCRC")
 
@@ -95,7 +97,11 @@ eligible_schools <- eligible_schools[eligible_schools$"Eligibility Percent" >= 5
 eligible_schools <-
   clean_community_sites(
     sites = eligible_schools,
-    rename_cols = c("Site", "Site Address", "Site City", "Site County", "Site Zip"),
+    rename_cols = c("Site",
+                    "Site Address",
+                    "Site City",
+                    # "Site County",
+                    "Site Zip"), 
     site_type = "Eligible School"
   )
 
@@ -124,7 +130,11 @@ emergency_shelters <- rvest::read_html(html) %>%
 emergency_shelters <-
   clean_community_sites(
     sites = emergency_shelters,
-    rename_cols = c("Site Name", "Address", "City", "County", "ZIP"),
+    rename_cols = c("Site Name",
+                    "Address",
+                    "City",
+                    # "County",
+                    "ZIP"),
     site_type = "Emergency Shelter"
   )
 
@@ -151,11 +161,17 @@ sites_geocoded <- sites_to_geocode %>%
       state = "site_state",
       postalcode = "site_zip"
     ),
-    cascade = TRUE
+    cascade = TRUE,
+    lat = "latitude",
+    long = "longitude"
   )
 
-# Took 16 mins
-# 143 sites not geocoded (mostly PO boxes)
+sites_geocoded <- sites_geocoded %>% dplyr::select(-query)
+
+# df <- sites_geocoded[is.na(sites_geocoded$latitude), ]
+# Took 17 mins
+# 164 sites not geocoded (mostly PO boxes)
+# Addresses with 2 lines aren't geocoded
 
 # Head Start Centers
 # Using Head Start API
@@ -179,12 +195,16 @@ head_start_centers$zip <-
 head_start_centers <-
   clean_community_sites(
     head_start_centers,
-    rename_cols = c("name", "addressLineOne", "city", "county", "zip"),
+    rename_cols = c(
+      "name",
+      "addressLineOne",
+      "city",
+      # "county",
+      "zip"
+      ),
     site_type = "Head Start Center",
     coords = TRUE
   )
-
-# Remove head_start_centers.csv from dir, git    
 
 # Federally Qualified Health Centers
 # https://data.hrsa.gov/geo
@@ -222,7 +242,15 @@ download.file(
 # USE HRSA API INSTEAD
 # https://data.hrsa.gov/data/services
 
-# rbind all sites into community_sites
+# Combine all sites into community_sites
+
+community_sites <-
+  dplyr::bind_rows(
+    sites_geocoded,
+    head_start_centers#, 
+    # fqhcs
+  )
+
 # reference
 # "C:\Users\jstadni2\Box\FCS Data Analyst\Community Networks Dashboard\Community Networks Choropleth Map\Eligible Sites Data Cleaning.R"
 # or 
