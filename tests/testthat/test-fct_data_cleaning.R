@@ -572,3 +572,20 @@ test_that("places_query", {
   
   expect_equal(q_counties, q_counties_fnc)
 })
+
+test_that("brfss_query", {  
+  q <- "https://chronicdata.cdc.gov/resource/dttw-5yxu.json?$select=locationabbrev, data_value&year=2019&locationabbr=IL&questionid=_BMI5CAT&response=Obese (BMI 30.0 - 99.8)&break_out=Overall"
+  
+  q_fnc <-
+    brfss_query(
+      year = "2019",
+      state = "IL", 
+      question_id = "_BMI5CAT", 
+      response = "Obese (BMI 30.0 - 99.8)", 
+      break_out = "Overall",
+      cols = c("locationabbrev", "data_value")
+    )
+  
+  expect_equal(q, q_fnc)
+  
+})

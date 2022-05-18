@@ -21,20 +21,27 @@ adult_obesity <-
 
 # PLACES: Local Data for Better Health, County Data 2021 release (uses 2019 ACS)
 places_county <- RSocrata::read.socrata(
-  "https://chronicdata.cdc.gov/resource/swc5-untb.json?stateabbr=IL&measure=Obesity among adults aged >=18 years&data_value_type=Age-adjusted prevalence"
+  places_query(
+    geography = "counties",
+    year = "2019",
+    state = "IL",
+    measure = "Obesity among adults aged >=18 years",
+    cols = c("locationname", "data_value")
+  )
 )
 
 # PLACES: Local Data for Better Health, Place Data 2021 release
 places_place <- RSocrata::read.socrata(
-  "https://chronicdata.cdc.gov/resource/eav7-hnsx.json?$select=locationname, data_value&stateabbr=IL&measure=Obesity among adults aged >=18 years&data_value_type=Age-adjusted prevalence"
+  places_query(
+    geography = "places",
+    year = "2019",
+    state = "IL",
+    measure = "Obesity among adults aged >=18 years",
+    cols = c("locationname", "data_value")
+  )
 )
 
-# select desired columns
-cols <- c("locationname", "data_value")
-# paste(c("locationname", "datavalue"), collapse = ", ")
-places_place1 <- RSocrata::read.socrata(
-  "https://chronicdata.cdc.gov/resource/eav7-hnsx.json?$select=locationname, data_value&stateabbr=IL"
-)
+
 
 
 # statewide measure?

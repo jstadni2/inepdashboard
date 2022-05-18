@@ -440,8 +440,24 @@ eclkc_query <- function(key, state) {
 
 # misc_profile_data.R functions
 
-# API key optional
-# geography A string representing the geography of the subject table (\code{"counties"}, "places", or "state").
+#' Generate (Socrata Open Data API)[https://dev.socrata.com/] queries for (PLACES: Local Data for Better Health)[https://www.cdc.gov/places/about/index.html]
+#' 
+#' API key optional, consider adding input arg
+#'
+#' @param geography A string representing the geography of the PLACES records (\code{"counties"} or \code{"places"}.
+#' 
+#' [County Data 2021 Documentation](https://dev.socrata.com/foundry/chronicdata.cdc.gov/swc5-untb)
+#' [Place Data 2021 Documentation](https://dev.socrata.com/foundry/chronicdata.cdc.gov/eav7-hnsx)
+#' 
+#' @param year A character value for the report year of the PLACES dataset.
+#' @param state A character value for the \code{stateabbr} column of the query.
+#' @param measure A character value for the \code{measure} column of the query.
+#' @param cols A character vector of columns to pass to the query's \code{select} parameter. MAKE OPTIONAL USING *?
+#'
+#' @return
+#' @export
+#'
+#' @examples
 places_query <- function(geography, year, state, measure, cols) {
   data_id <- ""
   
@@ -463,25 +479,16 @@ places_query <- function(geography, year, state, measure, cols) {
   query
 }
 
-brfss_query <- function(geography, year, state, measure, cols) {
-  
-  if (geography == "state") {
-    data_id <- "dttw-5yxu"
-    state_var <- "locationabbr="
-  } else if (geography == "counties" & year == "2019") {
-    data_id <- "swc5-untb.json?"
-    state_var <- "stateabbr="
-  } else if (geography == "places" & year == "2019") {
-    data_id <- "eav7-hnsx.json?stateabbr="
-
-  }
-  
+# Make question_id accept character vector
+brfss_query <- function(year, state, question_id, response, break_out, cols) {
   query <- paste0(
-    "https://chronicdata.cdc.gov/resource/",
-    data_id,
-    "locationabbr=", state,
+    "https://chronicdata.cdc.gov/resource/dttw-5yxu.json?",
+    "$select=", paste(cols, collapse = ", "),
     "&year=", year,
-    "&apikey=", key #determine how to store key in project env
+    "&locationabbr=", state,
+    "&questionid=", question_id,
+    "&response=", response,
+    "&break_out=", break_out
   )
   query
 }
