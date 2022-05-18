@@ -542,3 +542,33 @@ test_that("eclkc_query", {
   )
   
 })
+
+# misc_profile_data.R function tests
+
+test_that("places_query", {  
+  q_places <- "https://chronicdata.cdc.gov/resource/eav7-hnsx.json?$select=locationname, data_value&stateabbr=IL&measure=Obesity among adults aged >=18 years&data_value_type=Age-adjusted prevalence"
+  
+  q_places_fnc <-
+    places_query(
+      geography = "places",
+      year = "2019",
+      state = "IL",
+      measure = "Obesity among adults aged >=18 years",
+      cols = c("locationname", "data_value")
+    )
+  
+  expect_equal(q_places, q_places_fnc)
+  
+  q_counties <- "https://chronicdata.cdc.gov/resource/swc5-untb.json?$select=locationname, data_value&stateabbr=IL&measure=Obesity among adults aged >=18 years&data_value_type=Age-adjusted prevalence"
+  
+  q_counties_fnc <-
+    places_query(
+      geography = "counties",
+      year = "2019",
+      state = "IL",
+      measure = "Obesity among adults aged >=18 years",
+      cols = c("locationname", "data_value")
+    )
+  
+  expect_equal(q_counties, q_counties_fnc)
+})

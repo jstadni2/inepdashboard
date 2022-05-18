@@ -437,3 +437,51 @@ eclkc_query <- function(key, state) {
   )
   query
 }
+
+# misc_profile_data.R functions
+
+# API key optional
+# geography A string representing the geography of the subject table (\code{"counties"}, "places", or "state").
+places_query <- function(geography, year, state, measure, cols) {
+  data_id <- ""
+  
+  if (geography == "counties" & year == "2019") {
+    data_id <- "swc5-untb"
+  } else if (geography == "places" & year == "2019") {
+    data_id <- "eav7-hnsx"
+  }
+  
+  query <- paste0(
+    "https://chronicdata.cdc.gov/resource/",
+    data_id,
+    ".json?",
+    "$select=", paste(cols, collapse = ", "),
+    "&stateabbr=", state,
+    "&measure=", measure,
+    "&data_value_type=Age-adjusted prevalence"
+  )
+  query
+}
+
+brfss_query <- function(geography, year, state, measure, cols) {
+  
+  if (geography == "state") {
+    data_id <- "dttw-5yxu"
+    state_var <- "locationabbr="
+  } else if (geography == "counties" & year == "2019") {
+    data_id <- "swc5-untb.json?"
+    state_var <- "stateabbr="
+  } else if (geography == "places" & year == "2019") {
+    data_id <- "eav7-hnsx.json?stateabbr="
+
+  }
+  
+  query <- paste0(
+    "https://chronicdata.cdc.gov/resource/",
+    data_id,
+    "locationabbr=", state,
+    "&year=", year,
+    "&apikey=", key #determine how to store key in project env
+  )
+  query
+}
