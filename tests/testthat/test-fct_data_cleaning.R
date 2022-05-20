@@ -545,46 +545,75 @@ test_that("eclkc_query", {
 
 # misc_profile_data.R function tests
 
-test_that("places_query", {  
-  q_places <- "https://chronicdata.cdc.gov/resource/eav7-hnsx.json?$select=locationname, data_value&stateabbr=IL&measure=Obesity among adults aged >=18 years&data_value_type=Age-adjusted prevalence"
+test_that("import_places", { 
+  # geography = "places"
+  ## Using manual operations
   
-  q_places_fnc <-
-    places_query(
+  places1 <-
+    RSocrata::read.socrata(
+      "https://chronicdata.cdc.gov/resource/eav7-hnsx.json?$select=locationname, data_value&stateabbr=IL&measure=Obesity among adults aged >=18 years&data_value_type=Age-adjusted prevalence"
+    )
+  names(places1) <- c("geographic_area_name", "percent_adults_obesity")
+  
+  ## Using package-defined function
+  
+  places2 <-
+    import_places(
       geography = "places",
-      year = "2019",
+      year = "2021",
       state = "IL",
       measure = "Obesity among adults aged >=18 years",
-      cols = c("locationname", "data_value")
+      select_cols = c("locationname", "data_value"),
+      rename_cols = c("geographic_area_name", "percent_adults_obesity")
     )
   
-  expect_equal(q_places, q_places_fnc)
+  expect_equal(places1, places2)
   
-  q_counties <- "https://chronicdata.cdc.gov/resource/swc5-untb.json?$select=locationname, data_value&stateabbr=IL&measure=Obesity among adults aged >=18 years&data_value_type=Age-adjusted prevalence"
+  # geography = "counties"
+  ## Using manual operations
   
-  q_counties_fnc <-
-    places_query(
+  counties1 <- 
+    RSocrata::read.socrata(
+      "https://chronicdata.cdc.gov/resource/swc5-untb.json?$select=locationname, data_value&stateabbr=IL&measure=Obesity among adults aged >=18 years&data_value_type=Age-adjusted prevalence"
+      )
+  names(counties1) <- c("county", "percent_adults_obesity")
+  
+  ## Using package-defined function
+  
+  counties2 <-
+    import_places(
       geography = "counties",
-      year = "2019",
+      year = "2021",
       state = "IL",
       measure = "Obesity among adults aged >=18 years",
-      cols = c("locationname", "data_value")
+      select_cols = c("locationname", "data_value"),
+      rename_cols = c("county", "percent_adults_obesity")
     )
   
-  expect_equal(q_counties, q_counties_fnc)
+  expect_equal(counties1, counties2)
 })
 
-test_that("brfss_query", {  
-  q <- "https://chronicdata.cdc.gov/resource/dttw-5yxu.json?$select=locationabbr, data_value&year=2019&locationabbr=IL&questionid=_BMI5CAT&response=Obese (BMI 30.0 - 99.8)&break_out=Overall"
+test_that("import_brfss", {  
+  # Using manual operations
   
-  q_fnc <-
-    brfss_query(
-      year = "2019",
+  brfss1 <-
+    RSocrata::read.socrata(
+      "https://chronicdata.cdc.gov/resource/dttw-5yxu.json?$select=locationabbr, data_value&year=2020&locationabbr=IL&questionid=_BMI5CAT&response=Obese (BMI 30.0 - 99.8)&break_out=Overall"
+    )
+  names(brfss1) <- c("state", "percent_adults_obesity")
+                          
+  # Using package-defined function
+  
+  brfss2 <-
+    import_brfss(
+      year = "2020",
       state = "IL", 
       question_id = "_BMI5CAT", 
       response = "Obese (BMI 30.0 - 99.8)", 
       break_out = "Overall",
-      cols = c("locationabbr", "data_value")
+      select_cols = c("locationabbr", "data_value"),
+      rename_cols = c("state", "percent_adults_obesity")
     )
   
-  expect_equal(q, q_fnc)
+  expect_equal(brfss1, brfss2)
 })

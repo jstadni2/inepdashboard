@@ -440,7 +440,9 @@ eclkc_query <- function(key, state) {
 
 # misc_profile_data.R functions
 
-#' Generate (Socrata Open Data API)[https://dev.socrata.com/] queries for (PLACES: Local Data for Better Health)[https://www.cdc.gov/places/about/index.html]
+#' Import data from (PLACES: Local Data for Better Health)[https://www.cdc.gov/places/about/index.html]
+#' 
+#' (Socrata Open Data API)[https://dev.socrata.com/]
 #' 
 #' API key optional, consider adding input arg
 #'
@@ -450,20 +452,21 @@ eclkc_query <- function(key, state) {
 #' [Place Data 2021 Documentation](https://dev.socrata.com/foundry/chronicdata.cdc.gov/eav7-hnsx)
 #' 
 #' @param year A character value for the report year of the PLACES dataset.
-#' @param state A character value for the \code{stateabbr} column of the query.
-#' @param measure A character value for the \code{measure} column of the query.
-#' @param cols A character vector of columns to pass to the query's \code{select} parameter. MAKE OPTIONAL USING *?
-#'
-#' @return
+#' @param state A character value for the \code{stateabbr} column of the SODA query.
+#' @param measure A character value for the \code{measure} column of the SODA query.
+#' @param select_cols A character vector of columns to pass to the SODA query's \code{select} parameter. MAKE OPTIONAL USING *?
+#' @param rename_cols A character vector of columns used to rename \code{select_cols}.
+#'  
+#' @return The data frame from the SODA request with renamed columns
 #' @export
 #'
 #' @examples
-places_query <- function(geography, year, state, measure, cols) {
+import_places <- function(geography, year, state, measure, select_cols, rename_cols) {
   data_id <- ""
   
-  if (geography == "counties" & year == "2019") {
+  if (geography == "counties" & year == "2021") {
     data_id <- "swc5-untb"
-  } else if (geography == "places" & year == "2019") {
+  } else if (geography == "places" & year == "2021") {
     data_id <- "eav7-hnsx"
   }
   
@@ -471,32 +474,48 @@ places_query <- function(geography, year, state, measure, cols) {
     "https://chronicdata.cdc.gov/resource/",
     data_id,
     ".json?",
-    "$select=", paste(cols, collapse = ", "),
+    "$select=", paste(select_cols, collapse = ", "),
     "&stateabbr=", state,
     "&measure=", measure,
     "&data_value_type=Age-adjusted prevalence"
   )
-  query
+  
+  data <- RSocrata::read.socrata(query)
+  
+  names(data) <- rename_cols
+  
+  data
 }
 
-# Make question_id accept character vector
-brfss_query <- function(year, state, question_id, response, break_out, cols) {
+#' Import (Behavioral Risk Factor Surveillance System (BRFSS) Prevalence Data (2011 to present))[https://dev.socrata.com/foundry/chronicdata.cdc.gov/dttw-5yxu]
+#'
+#' @param year A character value for the report year of the BRFSS dataset.
+#' @param state A character value for the \code{locationabb} column of the SODA query.
+#' @param question_id 
+#' @param response 
+#' @param break_out 
+#' @param select_cols 
+#' @param rename_cols 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+import_brfss <- function(year, state, question_id, response, break_out, select_cols, rename_cols) {
+  # Make question_id accept character vector
   query <- paste0(
     "https://chronicdata.cdc.gov/resource/dttw-5yxu.json?",
-    "$select=", paste(cols, collapse = ", "),
+    "$select=", paste(select_cols, collapse = ", "),
     "&year=", year,
     "&locationabbr=", state,
     "&questionid=", question_id,
     "&response=", response,
     "&break_out=", break_out
   )
-  query
-}
-
-rename_brfss_cols <- function(data, geography, metric) {
-  out_df <- data
   
-  names(out_df) <- c(geography, metric)
+  data <- RSocrata::read.socrata(query)
   
-  out_df
+  names(data) <- rename_cols
+  
+  data
 }
