@@ -457,7 +457,7 @@ eclkc_query <- function(key, state) {
 #' @param select_cols A character vector of columns to pass to the SODA query's \code{select} parameter. MAKE OPTIONAL USING *?
 #' @param rename_cols A character vector of columns used to rename \code{select_cols}.
 #'  
-#' @return The data frame from the SODA request with renamed columns
+#' @return The data frame from the SODA request with renamed columns.
 #' @export
 #'
 #' @examples
@@ -490,14 +490,14 @@ import_places <- function(geography, year, state, measure, select_cols, rename_c
 #' Import (Behavioral Risk Factor Surveillance System (BRFSS) Prevalence Data (2011 to present))[https://dev.socrata.com/foundry/chronicdata.cdc.gov/dttw-5yxu]
 #'
 #' @param year A character value for the report year of the BRFSS dataset.
-#' @param state A character value for the \code{locationabb} column of the SODA query.
-#' @param question_id 
-#' @param response 
-#' @param break_out 
-#' @param select_cols 
-#' @param rename_cols 
+#' @param state A character value for the \code{locationabbr} column of the SODA query.
+#' @param question_id A character value for the desired question's ID. (2020 Codebook)[https://www.cdc.gov/brfss/annual_data/2020/pdf/codebook20_llcp-v2-508.pdf]
+#' @param response A character value for the response of the survey question referenced by \code{question_id}.
+#' @param break_out A character value for the \code{break_ou} column of the SODA query.
+#' @param select_cols A character vector of columns to pass to the SODA query's \code{select} parameter. MAKE OPTIONAL USING *?
+#' @param rename_cols A character vector of columns used to rename \code{select_cols}.
 #'
-#' @return
+#' @return The data frame from the SODA request with renamed columns.
 #' @export
 #'
 #' @examples
