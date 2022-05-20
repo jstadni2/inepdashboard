@@ -492,3 +492,11 @@ brfss_query <- function(year, state, question_id, response, break_out, cols) {
   )
   query
 }
+
+rename_brfss_cols <- function(data, geography, metric) {
+  out_df <- data
+  
+  names(out_df) <- c(geography, metric)
+  
+  out_df
+}

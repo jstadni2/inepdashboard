@@ -42,24 +42,20 @@ places_place <- RSocrata::read.socrata(
 )
 
 
-
-
-# statewide measure?
-c("locationabbrev", "datavalue")
-
 # https://chronicdata.cdc.gov/api/views/dttw-5yxu
 # Behavioral Risk Factor Surveillance System (BRFSS) Prevalence Data (2011 to present)
 
-brfss<- RSocrata::read.socrata(
-  "https://chronicdata.cdc.gov/resource/dttw-5yxu.json?locationabbr=IL&year=2019&questionid=_BMI5CAT&response=Obese (BMI 30.0 - 99.8)&break_out=Overall"
+brfss <- RSocrata::read.socrata(
+  brfss_query(
+    year = "2019",
+    state = "IL",
+    question_id = "_BMI5CAT",
+    response = "Obese (BMI 30.0 - 99.8)",
+    break_out = "Overall",
+    cols = c("locationabbr", "data_value")
+  )
 )
 
-obese <-
-  brfss[brfss$questionid == "_BMI5CAT" &
-          brfss$year == "2019" &
-          brfss$locationabbr == "IL" &
-          brfss$response == "Obese (BMI 30.0 - 99.8)" &
-          brfss$break_out == "Overall",]
 
 # 2019
 
