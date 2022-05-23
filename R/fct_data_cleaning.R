@@ -538,18 +538,26 @@ import_food_insecurity <- function(file, state, year, geography) {
   
   if (geography == "State") {
     geo_col <- "State"
-  } else if (geography == "County") {
-    geo_col <- "County, State"
-  }
-  
-  food_insecurity_df <-
-    food_insecurity_df[food_insecurity_df$State == state, c(
+    cols <- c(
       geo_col,
       paste0(year, " Food Insecurity Rate"),
       paste0("# of Food Insecure Persons in ", year),
-      paste0(year, " Child food insecurity rate"),
+      paste0(year, " Child Food Insecurity Rate"),
       paste0("# of Food Insecure Children in ", year)
-    )]
+    )
+  } else if (geography == "County") {
+    geo_col <- "County, State"
+    cols <- c(
+      geo_col,
+      paste0(year, " Food Insecurity Rate"),
+      paste0("# of Food Insecure Persons in ", year),
+      paste0(year, " Child food insecurity rate"), # Column labeled differently in County tab
+      paste0("# of Food Insecure Children in ", year)
+    )
+  }
+  
+  food_insecurity_df <-
+    food_insecurity_df[food_insecurity_df$State == state, cols]
   
   if (geography == "County") {
     food_insecurity_df <-

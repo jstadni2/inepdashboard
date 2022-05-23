@@ -672,3 +672,18 @@ snap_ed_eligibility_cities <-
 # calculate percent here instead of in reactive?
 
 # usethis::use_data(snap_ed_eligibility_cities, overwrite = TRUE)
+
+# Places to Counties
+
+il_places_sf <- tigris::places(state = state, year = year)
+
+il_counties_sf <- tigris::counties(state = state, year = year)
+
+places_counties_sf <- 
+  sf::st_join(il_places_sf, il_counties_sf)
+
+places_counties <- as.data.frame(places_counties_sf)[, c("NAME.x", "NAME.y")]
+
+names(places_counties) <- c("place", "county")
+
+# usethis::use_data(places_counties, overwrite = TRUE)
