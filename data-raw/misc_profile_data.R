@@ -100,7 +100,7 @@ food_insecurity_counties <-
     "# of Food Insecure Children in 2019"
   )]
 
-food_insecurity_counties <-
+food_insecurity_state <-
   readxl::read_excel("./data-raw/Map the Meal Gap Data/MMG2021_2019Data_ToShare.xlsx",
                      sheet = "2019 State")
 

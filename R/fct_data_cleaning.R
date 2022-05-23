@@ -519,3 +519,52 @@ import_brfss <- function(year, state, question_id, response, break_out, select_c
   
   data
 }
+
+#' Title
+#'
+#' @param file 
+#' @param state 
+#' @param year 
+#' @param geography \code{"County"} or \code{"State"}
+#'
+#' @return
+#' @export
+#'
+#' @examples
+import_food_insecurity <- function(file, state, year, geography) {
+  food_insecurity_df <-
+    readxl::read_excel(file,
+                       sheet = paste(year, geography))
+  
+  if (geography == "State") {
+    geo_col <- "State"
+  } else if (geography == "County") {
+    geo_col <- "County, State"
+  }
+  
+  food_insecurity_df <-
+    food_insecurity_df[food_insecurity_df$State == state, c(
+      geo_col,
+      paste0(year, " Food Insecurity Rate"),
+      paste0("# of Food Insecure Persons in ", year),
+      paste0(year, " Child food insecurity rate"),
+      paste0("# of Food Insecure Children in ", year)
+    )]
+  
+  if (geography == "County") {
+    food_insecurity_df <-
+      food_insecurity_df %>% tidyr::separate({{ geo_col }}, c("county", NA), sep = " County, ")
+  } else if (geography == "State") {
+    names(food_insecurity_df)[1] <- "state"
+  }
+  
+  names(food_insecurity_df)[2:5] <- c(
+    "food_insecurity_rate",
+    "food_insecure_persons",
+    "child_food_insecurity_rate",
+    "food_insecure_children"
+  )
+  
+  food_insecurity_df
+}
+

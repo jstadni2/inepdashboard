@@ -617,3 +617,37 @@ test_that("import_brfss", {
   
   expect_equal(brfss1, brfss2)
 })
+
+test_that("import_food_insecurity", {
+  file <- system.file("testdata", "MMG2021_2019Data_ToShare.xlsx", package = "inepdashboard")
+
+  # Using manual operations
+
+  food_insecurity_counties1 <-
+    readxl::read_excel(file,
+                       sheet = "2019 County")
+
+  food_insecurity_counties1 <-
+    food_insecurity_counties1[food_insecurity_counties1$State == "IL", c(
+      "County, State",
+      "2019 Food Insecurity Rate",
+      "# of Food Insecure Persons in 2019",
+      "2019 Child food insecurity rate",
+      "# of Food Insecure Children in 2019"
+    )] %>% dplyr::rename(
+      county = "County, State",
+      food_insecurity_rate = "2019 Food Insecurity Rate",
+      food_insecure_persons = "# of Food Insecure Persons in 2019",
+      child_food_insecurity_rate = "2019 Child food insecurity rate",
+      food_insecure_children = "# of Food Insecure Children in 2019"
+    )
+
+  food_insecurity_counties1$county <- gsub(" County, Illinois", "", food_insecurity_counties1$county)
+
+  # Using package-defined function
+
+  food_insecurity_counties2 <-
+    import_food_insecurity(file, "IL", "2019", "County")
+
+  expect_equal(food_insecurity_counties1, food_insecurity_counties2)
+})
