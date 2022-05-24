@@ -682,7 +682,7 @@ il_counties_sf <- tigris::counties(state = state, year = year)
 places_counties_sf <- 
   sf::st_join(il_places_sf, il_counties_sf)
 
-places_counties <- as.data.frame(places_counties_sf)[, c("NAME.x", "NAME.y")]
+places_counties <- as.data.frame(places_counties_sf)[, c("NAME.x", "NAME.y")] # Include GEOIDs?
 
 names(places_counties) <- c("place", "county")
 

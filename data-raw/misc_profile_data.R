@@ -17,8 +17,6 @@ adult_obesity_counties <-
     rename_cols = c("county", "percent_adults_obesity")
   )
 
-# usethis::use_data(adult_obesity_countiesa, overwrite = TRUE)
-
 ## PLACES: Local Data for Better Health, Place Data 2021 release
 
 adult_obesity_cities  <-
@@ -45,8 +43,6 @@ adult_obesity_state <-
     select_cols = c("locationabbr", "data_value"),
     rename_cols = c("state", "percent_adults_obesity")
   )
-
-# usethis::use_data(adult_obesity_cities, overwrite = TRUE)
 
 # Food Insecurity
 
@@ -90,13 +86,25 @@ mmg_filepath <- paste0("./data-raw/", mmg_file)
 food_insecurity_counties <-
   import_food_insecurity(mmg_filepath, "IL", "2019", "County")
 
-# usethis::use_data(food_insecurity_counties, overwrite = TRUE)
 
 food_insecurity_state <-
   import_food_insecurity(mmg_filepath, "IL", "2019", "State")
 
-# usethis::use_data(food_insecurity_state, overwrite = TRUE)
+
+# Food insecurity data not available by place/city
 
 # Delete zip
 
 file.remove(zip_dest)
+
+# Join data sets by geography
+
+misc_prof_data_counties <-
+  dplyr::full_join(adult_obesity_counties, food_insecurity_counties, by = "county")
+
+# usethis::use_data(misc_prof_data_counties, overwrite = TRUE)
+
+misc_prof_data_state <-
+  dplyr::full_join(adult_obesity_state, food_insecurity_state, by = "state")
+
+# usethis::use_data(misc_prof_data_counties, overwrite = TRUE)
