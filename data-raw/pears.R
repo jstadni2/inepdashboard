@@ -1,5 +1,28 @@
 ## code to prepare `pears` dataset goes here
 
+aws.signature::use_credentials(profile = "pears")
+
+prefix <- "uie/"
+ts <- format(Sys.time(), "%Y/%m/%d/")
+
+response <- aws.s3::get_bucket(
+  bucket = "exports.pears.oeie.org",
+  region = "us-east-1",
+  prefix = paste0(prefix, ts),
+  max = 100
+)
+
+for (f in response$Contents) {
+  file = f$Key
+  # filename = file[file.rfind('/') + 1:]
+  # Read without saving object?
+  obj <- aws.s3::get_(file, my_bucket, filename)
+  readxl::read_xlsx()
+}
+
+
+#
+
 sites <- readxl::read_xlsx("data-raw/Sites_Export.xlsx", sheet = "Site Data") #update file
 
 pa <- readxl::read_xlsx("data-raw/Program_Activities_Export.xlsx", sheet = "Program Activity Data") #update file
