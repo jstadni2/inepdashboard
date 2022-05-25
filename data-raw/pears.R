@@ -1,27 +1,96 @@
 ## code to prepare `pears` dataset goes here
 
 aws.signature::use_credentials(profile = "pears")
+pears_bucket <- "exports.pears.oeie.org"
 
 prefix <- "uie/"
 ts <- format(Sys.time(), "%Y/%m/%d/")
 
 response <- aws.s3::get_bucket(
-  bucket = "exports.pears.oeie.org",
+  bucket = pears_bucket,
   region = "us-east-1",
   prefix = paste0(prefix, ts),
   max = 100
 )
 
-for (f in response$Contents) {
-  file = f$Key
-  # filename = file[file.rfind('/') + 1:]
-  # Read without saving object?
-  obj <- aws.s3::get_(file, my_bucket, filename)
-  readxl::read_xlsx()
+# Better way to map this data?
+pears_modules <- tibble::tibble(
+  module = c(
+    "Sites",
+    "Program Activities",
+    "Indirect Activities",
+    "Indirect Activities",
+    "PSE Site Activities",
+    "Coalitions",
+    "Coalitions",
+    "Partnerships"
+  ),
+  filename = c(
+    "Site_Export.xlsx",
+    "Program_Activities_Export.xlsx",
+    "Indirect_Activity_Export.xlsx",
+    "Indirect_Activity_Export.xlsx",
+    "PSE_Site_Activity_Export.xlsx",
+    "Coalition_Export.xlsx",
+    "Coalition_Export.xlsx",
+    "Partnership_Export.xlsx"
+  ),
+  sheet = c(
+    "Site Data",
+    "Program Activity Data",
+    "Indirect Activity Data",
+    "Intervention Channels",
+    "PSE Data",
+    "Coalition Data",
+    "Members",
+    "Partnership Data"
+  )
+)
+
+pears_modules$data <- NA
+pears_imports <- list()
+# list of sheets
+
+# move wrapper function
+read_xlsx_sheet <- function(sheet = 1) {
+  function(file) {
+    readxl::read_xlsx(file, sheet = sheet)
+  }
 }
 
+j <- 1
 
-#
+for (i in 1:length(response)) {
+  key <- response[i]$Contents$Key
+  print(key)
+  filename <- stringr::str_sub(key, 16, -1)
+  # Check if file is in list of files
+  # If TRUE, create list entry for file
+  if (filename %in% pears_modules$filename) {
+    print(filename)
+    # For sheet in list of sheets for that file
+    # Read sheet into nested dataframe
+    for (sheet in pears_modules[pears_modules$filename == filename, ]$sheet) {
+      # Read without saving object
+      # pears_modules[pears_modules$filename == filename &
+      #                 pears_modules$sheet == sheet, "data"] <-
+      #   aws.s3::s3read_using(FUN = read_xlsx_sheet(sheet),
+      #                        bucket = pears_bucket,
+      #                        object = key)
+      pears_imports[j] <-
+        list(aws.s3::s3read_using(FUN = read_xlsx_sheet(sheet),
+                             bucket = pears_bucket,
+                             object = key))
+      j <- j + 1
+      print(sheet)
+    }
+  }
+}
+
+pears_modules$data <- pears_imports
+
+
+# Use dfs list for all subsequent references to PEARS raw data
 
 sites <- readxl::read_xlsx("data-raw/Sites_Export.xlsx", sheet = "Site Data") #update file
 
