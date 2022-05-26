@@ -58,7 +58,7 @@ read_xlsx_sheet <- function(sheet = 1) {
   }
 }
 
-k <- 1
+# Create function?
 
 for (f in response) {
   key <- f$Key
@@ -66,24 +66,18 @@ for (f in response) {
   # Check if file is in desired list of files
   # If TRUE, create pears_imports entry for file
   if (filename %in% pears_modules$filename) {
-    j <- 1
     # Initialize list of data frames for file's sheets 
     sheets <- list()
     for (sheet in pears_modules[pears_modules$filename == filename, ]$sheet) {
       # Read S3 object without saving it locally
       # Add data frame to list of sheets
-      sheets[j] <-
-        list(aws.s3::s3read_using(FUN = read_xlsx_sheet(sheet),
+      sheets[[sheet]] <-
+        aws.s3::s3read_using(FUN = read_xlsx_sheet(sheet),
                              bucket = pears_bucket,
-                             object = key))
-      # Name list item
-      names(sheets)[j] <- sheet
-      j <- j + 1
+                             object = key)
     }
     # Add list of sheet dataframes to list of files
-    pears_imports[k] <- list(sheets)
-    names(pears_imports)[k] <- filename
-    k <- k + 1
+    pears_imports[[filename]] <- sheets
   }
 }
 
