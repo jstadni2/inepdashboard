@@ -14,6 +14,7 @@ response <- aws.s3::get_bucket(
 )
 
 # Better way to map this data?
+# List of lists?
 pears_modules <- tibble::tibble(
   module = c(
     "Sites",
@@ -47,9 +48,8 @@ pears_modules <- tibble::tibble(
   )
 )
 
-pears_modules$data <- NA
+# list of files
 pears_imports <- list()
-# list of sheets
 
 # move wrapper function
 read_xlsx_sheet <- function(sheet = 1) {
@@ -58,37 +58,34 @@ read_xlsx_sheet <- function(sheet = 1) {
   }
 }
 
-j <- 1
+k <- 1
 
-for (i in 1:length(response)) {
-  key <- response[i]$Contents$Key
-  print(key)
+for (f in response) {
+  key <- f$Key
   filename <- stringr::str_sub(key, 16, -1)
-  # Check if file is in list of files
-  # If TRUE, create list entry for file
+  # Check if file is in desired list of files
+  # If TRUE, create pears_imports entry for file
   if (filename %in% pears_modules$filename) {
-    print(filename)
-    # For sheet in list of sheets for that file
-    # Read sheet into nested dataframe
+    j <- 1
+    # Initialize list of data frames for file's sheets 
+    sheets <- list()
     for (sheet in pears_modules[pears_modules$filename == filename, ]$sheet) {
-      # Read without saving object
-      # pears_modules[pears_modules$filename == filename &
-      #                 pears_modules$sheet == sheet, "data"] <-
-      #   aws.s3::s3read_using(FUN = read_xlsx_sheet(sheet),
-      #                        bucket = pears_bucket,
-      #                        object = key)
-      pears_imports[j] <-
+      # Read S3 object without saving it locally
+      # Add data frame to list of sheets
+      sheets[j] <-
         list(aws.s3::s3read_using(FUN = read_xlsx_sheet(sheet),
                              bucket = pears_bucket,
                              object = key))
+      # Name list item
+      names(sheets)[j] <- sheet
       j <- j + 1
-      print(sheet)
     }
+    # Add list of sheet dataframes to list of files
+    pears_imports[k] <- list(sheets)
+    names(pears_imports)[k] <- filename
+    k <- k + 1
   }
 }
-
-pears_modules$data <- pears_imports
-
 
 # Use dfs list for all subsequent references to PEARS raw data
 
