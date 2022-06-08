@@ -679,11 +679,13 @@ il_places_sf <- tigris::places(state = state, year = year)
 
 il_counties_sf <- tigris::counties(state = state, year = year)
 
-places_counties_sf <- 
-  sf::st_join(il_places_sf, il_counties_sf)
+places_counties_sf <-
+  sf::st_join(il_places_sf, il_counties_sf, suffix = c("_place", "_county"))
 
-places_counties <- as.data.frame(places_counties_sf)[, c("NAME.x", "NAME.y")] # Include GEOIDs?
+places_counties <-
+  as.data.frame(places_counties_sf)[, c("NAME_place", "GEOID_place", "NAME_county", "GEOID_county")]
 
-names(places_counties) <- c("place", "county")
+places_counties <-
+  dplyr::rename_at(places_counties, dplyr::vars(c("NAME_place", "NAME_county")), ~ c("place", "county"))
 
 # usethis::use_data(places_counties, overwrite = TRUE)

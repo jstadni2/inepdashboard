@@ -59,6 +59,7 @@ read_xlsx_sheet <- function(sheet = 1) {
 }
 
 # Create function?
+# ONLY PULLS DATA FOR CURRENT REPORT YEAR
 
 for (f in response) {
   key <- f$Key
@@ -76,7 +77,7 @@ for (f in response) {
                              bucket = pears_bucket,
                              object = key)
     }
-    # Add list of sheet dataframes to list of files
+    # Add list of sheet data frames to list of files
     pears_imports[[filename]] <- sheets
   }
 }
