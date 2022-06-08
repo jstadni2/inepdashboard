@@ -163,7 +163,7 @@ site_programming <-
     "longitude",
     "snap_ed",
     "efnep"# ,
-    # head following fields for inep dashboard
+    # Omit following fields from inep dashboard
     # "program_activities",
     # "indirect_activities",
     # "pse_site_activities",
@@ -171,4 +171,4 @@ site_programming <-
     # "partnerships"
   )]
 
-# usethis::use_data(pears, overwrite = TRUE)
+usethis::use_data(site_programming, overwrite = TRUE)

@@ -85,9 +85,24 @@ snap_ed_eligibility_tracts <-
   )
 
 # was named il_tracts_sf_merged, change in modules/app.R
-snap_ed_eligibility_tracts_sf <- sf::merge(il_tracts_sf, snap_ed_eligibility_tracts, by = "GEOID")
+snap_ed_eligibility_tracts_sf <- merge(il_tracts_sf, snap_ed_eligibility_tracts, by = "GEOID")
 
-# usethis::use_data(snap_ed_eligibility_tracts_sf, overwrite = TRUE)
+snap_ed_eligibility_tracts_sf <-
+  dplyr::select(
+    snap_ed_eligibility_tracts_sf,
+    c(
+      "GEOID",
+      "census_tract",
+      "county",
+      "state",
+      "total_population",
+      "individuals_income_below_185_percent_poverty_level",
+      "snap_eligibility_percent",
+      "geometry"
+    )
+  )
+
+usethis::use_data(snap_ed_eligibility_tracts_sf, overwrite = TRUE)
 
 # Community profile data
 
