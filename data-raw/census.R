@@ -501,8 +501,8 @@ poverty_individuals_sex_cities <-
                       poverty_individuals_sex_cities2,
                       "sex")
 
-# usethis::use_data(poverty_individuals_sex_counties, overwrite = TRUE)
-# usethis::use_data(poverty_individuals_sex_cities, overwrite = TRUE)
+usethis::use_data(poverty_individuals_sex_counties, overwrite = TRUE)
+usethis::use_data(poverty_individuals_sex_cities, overwrite = TRUE)
 
 # Poverty Status of Individuals by Race/Ethnicity
 
