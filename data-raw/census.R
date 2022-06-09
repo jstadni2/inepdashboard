@@ -241,7 +241,7 @@ lep_households_counties <-
     ethnicity = FALSE
   )
 
-# usethis::use_data(lep_households_counties, overwrite = TRUE)
+usethis::use_data(lep_households_counties, overwrite = TRUE)
 
 lep_households_cities <-
   clean_census_data(
@@ -255,7 +255,7 @@ lep_households_cities <-
     ethnicity = FALSE
   )
 
-# usethis::use_data(lep_households_cities, overwrite = TRUE)
+usethis::use_data(lep_households_cities, overwrite = TRUE)
 
 s1701_poverty_counties <-
   get_acs_st(year, state, geography = "county", s1701_var_ids, acs_st_vars_lookup)
