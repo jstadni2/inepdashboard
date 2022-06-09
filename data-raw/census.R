@@ -674,7 +674,7 @@ snap_ed_eligibility_counties <-
 
 # calculate percent here instead of in reactive?
 
-# usethis::use_data(snap_ed_eligibility_counties, overwrite = TRUE)
+usethis::use_data(snap_ed_eligibility_counties, overwrite = TRUE)
 
 snap_ed_eligibility_cities <-
   unique(poverty_individuals_age_cities[, c("GEOID", "geographic_area_name", "total_population")]) %>%
@@ -686,7 +686,7 @@ snap_ed_eligibility_cities <-
 
 # calculate percent here instead of in reactive?
 
-# usethis::use_data(snap_ed_eligibility_cities, overwrite = TRUE)
+usethis::use_data(snap_ed_eligibility_cities, overwrite = TRUE)
 
 # Places to Counties
 
