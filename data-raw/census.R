@@ -653,8 +653,8 @@ poverty_individuals_demo_cities <-
                       "demo")
 
 
-# usethis::use_data(poverty_individuals_demo_counties, overwrite = TRUE)
-# usethis::use_data(poverty_individuals_demo_cities, overwrite = TRUE)
+usethis::use_data(poverty_individuals_demo_counties, overwrite = TRUE)
+usethis::use_data(poverty_individuals_demo_cities, overwrite = TRUE)
 
 # SNAP-Ed Eligibility
 
