@@ -393,8 +393,8 @@ poverty_individuals_age_cities$age <-
     c("Under 5", "5 To 17", "18 To 34", "35 To 64", "65 And Over")
   )
 
-# usethis::use_data(poverty_individuals_age_counties, overwrite = TRUE)
-# usethis::use_data(poverty_individuals_age_cities, overwrite = TRUE)
+usethis::use_data(poverty_individuals_age_counties, overwrite = TRUE)
+usethis::use_data(poverty_individuals_age_cities, overwrite = TRUE)
 
 # Poverty Status of Individuals by Sex
 
