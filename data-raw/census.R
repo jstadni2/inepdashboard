@@ -171,7 +171,7 @@ snap_recipient_households_demo_counties <-
     total_col
   )
 
-# usethis::use_data(snap_recipient_households_demo_counties, overwrite = TRUE)
+usethis::use_data(snap_recipient_households_demo_counties, overwrite = TRUE)
 
 snap_recipient_households_demo_cities <-
   clean_census_data(
@@ -187,7 +187,7 @@ snap_recipient_households_demo_cities <-
     total_col
   )
 
-# usethis::use_data(snap_recipient_households_demo_cities, overwrite = TRUE)
+usethis::use_data(snap_recipient_households_demo_cities, overwrite = TRUE)
 
 # LEP Households by Language
 
