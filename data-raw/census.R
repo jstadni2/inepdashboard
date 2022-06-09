@@ -703,4 +703,4 @@ places_counties <-
 places_counties <-
   dplyr::rename_at(places_counties, dplyr::vars(c("NAME_place", "NAME_county")), ~ c("place", "county"))
 
-# usethis::use_data(places_counties, overwrite = TRUE)
+usethis::use_data(places_counties, overwrite = TRUE)
