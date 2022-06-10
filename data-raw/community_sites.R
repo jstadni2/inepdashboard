@@ -12,8 +12,10 @@ system("cmd.exe", input = 'call "C:\\Program Files\\Docker\\Docker\\Docker Deskt
 
 Sys.sleep(10)
 
+# Create container from image and delete when done
 # system("docker run --name selchrome -d -p 4445:4444 selenium/standalone-chrome" )
 
+# Use preexisting container
 system("docker start selchrome" )
 
 # Create firefox pofile (below doesn't work)
@@ -35,7 +37,7 @@ system("docker start selchrome" )
 #                 ))
 
 remDr <-  RSelenium::remoteDriver(
-  remoteServerAddr = "192.168.1.5",
+  remoteServerAddr = "192.168.1.2", # Find on C:\Windows\System32\drivers\etc\hosts
   port = 4445L,
   browserName = "chrome"#,
   # extraCapabilities = eCaps
@@ -256,4 +258,4 @@ community_sites <-
 # or 
 # "C:\Users\jstadni2\Box\FCS Data Analyst\SNAP-Ed Sites List\Eligible Sites Data Cleaning.R"
 
-# usethis::use_data(community_sites, overwrite = TRUE)
+usethis::use_data(community_sites, overwrite = TRUE)

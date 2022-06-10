@@ -340,7 +340,7 @@ scrape_dhs_sites <- function(remDr, office_type) {
   # val <- ""
 
   if (office_type == "WIC Office") {
-    val <- "#SearchOffice_OfficeTypeDropDownList > option:nth-child(20)"
+    val <- "#SearchOffice_OfficeTypeDropDownList > option:nth-child(21)"
   } else if (office_type == "FCRC") {
     val <- "#SearchOffice_OfficeTypeDropDownList > option:nth-child(10)"
   }
