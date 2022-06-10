@@ -1,5 +1,7 @@
 ## code to prepare `misc_profile_data` dataset goes here
 
+state <- "IL"
+
 # Adult Obesity
 
 ## CDC datasets
@@ -11,7 +13,7 @@ adult_obesity_counties <-
   import_places(
     geography = "counties",
     year = "2021",
-    state = "IL",
+    state = state,
     measure = "Obesity among adults aged >=18 years",
     select_cols = c("locationname", "data_value"),
     rename_cols = c("county", "percent_adults_obesity")
@@ -23,20 +25,20 @@ adult_obesity_cities  <-
   import_places(
     geography = "places",
     year = "2021",
-    state = "IL",
+    state = state,
     measure = "Obesity among adults aged >=18 years",
     select_cols = c("locationname", "data_value"),
     rename_cols = c("geographic_area_name", "percent_adults_obesity")
   )
 
-# usethis::use_data(adult_obesity_cities, overwrite = TRUE)
+usethis::use_data(adult_obesity_cities, overwrite = TRUE)
 
 ## Behavioral Risk Factor Surveillance System (BRFSS) Prevalence Data (2011 to present)
 
 adult_obesity_state <-
   import_brfss(
     year = "2020",
-    state = "IL",
+    state = state,
     question_id = "_BMI5CAT",
     response = "Obese (BMI 30.0 - 99.8)",
     break_out = "Overall",
@@ -84,11 +86,11 @@ unzip(
 mmg_filepath <- paste0("./data-raw/", mmg_file)
 
 food_insecurity_counties <-
-  import_food_insecurity(mmg_filepath, "IL", "2019", "County")
+  import_food_insecurity(mmg_filepath, state, "2019", "County")
 
 
 food_insecurity_state <-
-  import_food_insecurity(mmg_filepath, "IL", "2019", "State")
+  import_food_insecurity(mmg_filepath, state, "2019", "State")
 
 
 # Food insecurity data not available by place/city
@@ -102,9 +104,9 @@ file.remove(zip_dest)
 misc_prof_data_counties <-
   dplyr::full_join(adult_obesity_counties, food_insecurity_counties, by = "county")
 
-# usethis::use_data(misc_prof_data_counties, overwrite = TRUE)
+usethis::use_data(misc_prof_data_counties, overwrite = TRUE)
 
 misc_prof_data_state <-
   dplyr::full_join(adult_obesity_state, food_insecurity_state, by = "state")
 
-# usethis::use_data(misc_prof_data_counties, overwrite = TRUE)
+usethis::use_data(misc_prof_data_state, overwrite = TRUE)
