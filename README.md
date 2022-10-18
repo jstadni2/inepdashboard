@@ -8,5 +8,5 @@ throughout Illinois by county or city.
 
 ## Development
 
-`inepdashboard` is a work in progress, with the goal of refactoring [SNAP-Ed Community Profile](https://github.com/jstadni2/snapedprofile) using the [golem](https://thinkr-open.github.io/golem/) 
+`inepdashboard` is a work in progress, with the goal of refactoring the [SNAP-Ed Community Profile](https://github.com/jstadni2/snapedprofile) using the [golem](https://thinkr-open.github.io/golem/) 
 framework. The original dashboard is accessible via [this link](https://jstadni2.shinyapps.io/SNAP-Ed_Community_Profile/).
